@@ -1,7 +1,7 @@
 {
   "name": "gulp-unused-css",
-  "version": "0.0.0",
-  "description": "A linter for LESS files",
+  "version": "0.0.1",
+  "description": "Checks your CSS for unused classes in HTML templates",
   "main": "index.js",
   "scripts": {
     "test": "mocha test/test.js"
