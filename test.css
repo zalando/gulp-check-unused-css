@@ -1,0 +1,12 @@
+.table_container.special {
+  width: 100%;
+}
+.table_container.special .row-layout {
+  color: red;
+}
+.table_container.special #lowlevelid {
+  color: green;
+}
+.some--bem__module {
+    content: 'awesome';
+}

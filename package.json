@@ -1,0 +1,25 @@
+{
+  "name": "gulp-unused-css",
+  "version": "0.0.0",
+  "description": "A linter for LESS files",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "gulpplugin",
+    "gulp",
+    "unused",
+    "css"
+  ],
+  "author": "Nikolaus Piccolotto",
+  "license": "MIT",
+  "dependencies": {
+    "css": "^2.1.0",
+    "glob": "^4.0.5",
+    "gulp-util": "^3.0.0",
+    "htmlparser2": "^3.7.3",
+    "q": "^1.0.1",
+    "through2": "^0.6.1"
+  }
+}
