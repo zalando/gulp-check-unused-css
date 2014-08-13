@@ -4,7 +4,7 @@
   "description": "A linter for LESS files",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "mocha test/test.js"
   },
   "keywords": [
     "gulpplugin",
@@ -21,5 +21,10 @@
     "htmlparser2": "^3.7.3",
     "q": "^1.0.1",
     "through2": "^0.6.1"
+  },
+  "devDependencies": {
+    "assert": "^1.1.1",
+    "mocha": "^1.21.4",
+    "sinon": "^1.10.3"
   }
 }
