@@ -1,12 +1,14 @@
-.table_container.special {
+.table_container {
   width: 100%;
 }
-.table_container.special .row-layout {
+.table_container .row-layout {
   color: red;
 }
-.table_container.special #lowlevelid {
-  color: green;
+.table_container #lowlevelid {
+  color: yellow;
 }
 .some--bem__module {
     content: 'awesome';
 }
+
+.special {}

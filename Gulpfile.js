@@ -1,13 +1,24 @@
 var gulp = require( 'gulp' ),
+    cssmin = require( 'gulp-cssmin' ),
+    watch = require( 'gulp-watch' ),
     checkCSS = require( './index' );
 
 gulp.task( 'check', function() {
-    gulp
+    return gulp
         .src( 'test/test.css' )
         .pipe( checkCSS({
-            files: 'test/b*.html'
+            files: 'test/bad.html'
         }))
-        .on( 'error', function( err ) {
-            console.log( 'unused classes:', err.unused.join( ' ') );
-        });
+        .pipe( cssmin() )
+        .pipe( gulp.dest( 'test/min' ) );
+});
+
+gulp.task( 'watch', function() {
+    return watch({ glob: 'test/test.css' })
+        .pipe( checkCSS({
+            end: true,
+            files: 'test/bad.html'
+        }))
+        .pipe( cssmin() )
+        .pipe( gulp.dest( 'test/min' ) );
 });

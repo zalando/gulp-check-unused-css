@@ -39,6 +39,17 @@ it( 'should throw an error in bad case', function( done ) {
     stream.end();
 });
 
+it( 'should end the stream in bad case if end flag is true', function( done ) {
+    var stream = checkCSS({
+            end: true,
+            files: 'test/b*.html'
+        });
+
+    stream.on( 'end', done );
+
+    stream.write( bufferedCSS );
+});
+
 it( 'should emit the file in happy case', function( done ) {
     var errorSpy = sinon.spy(),
         stream = checkCSS({

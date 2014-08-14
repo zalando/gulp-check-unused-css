@@ -40,10 +40,9 @@ function getClasses( rule ) {
 // actual function that gets exported
 function checkCSS( opts ) {
 
-    // clear arrays just in case
-    definedClasses.splice();
-    usedClasses.splice();
-
+    if ( typeof opts === 'undefined' ) {
+        opts = {};
+    }
 
     // create html parser
     var htmlparser = new html.Parser({
@@ -64,7 +63,7 @@ function checkCSS( opts ) {
     var files,
         filesRead = Q.defer();  // resolves when all files are read by glob
 
-    if ( opts && opts.files ) {
+    if ( opts.files ) {
 
         glob( opts.files, null, function( err, globFiles ) {
             // put all files in html parser
@@ -94,12 +93,13 @@ function checkCSS( opts ) {
             return done();
         }
 
-        filesRead.promise.then( function() {
 
+        filesRead.promise.then( function() {
             // parse css content
             var ast = css.parse( String( file.contents ) ),
                 unused = [];
 
+            definedClasses = [];
             // find all classes in CSS
             ast.stylesheet.rules.forEach( getClasses );
             
@@ -115,10 +115,18 @@ function checkCSS( opts ) {
 
             // throw an error if there are unused classes
             if ( unused.length > 0 ) {
-                var error = new Error( 'The following classes in your CSS are actually unused: ' + unused.join( ' ' ) );
-                error.unused = unused;
-                self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, error ) );
-                return done();
+                var classString = unused.join( ' ' );
+                gutil.log.apply( gutil, [ gutil.colors.red( 'Unused CSS classes:' ), classString ] );
+
+                if ( opts.end ) {
+                    self.emit( 'end' );
+                    return done();
+                } else {
+                    var error = new Error( 'Unused CSS Classes: ' + classString );
+                    error.unused = unused;
+                    self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, error ) );
+                    return done();
+                }
             }
 
             // else proceed
