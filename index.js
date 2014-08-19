@@ -72,6 +72,8 @@ function checkCSS( opts ) {
     });
 
     var files,
+        ignoreClasses = opts.ignoreClassNames || false,
+        ignorePatterns= opts.ignoreClassPatterns || false,
         filesRead = Q.defer();  // resolves when all files are read by glob
 
     if ( opts.files ) {
@@ -121,7 +123,22 @@ function checkCSS( opts ) {
                         })
                         // filter unused
                         .filter( function( definedClass ) {
-                            return usedClasses.indexOf( definedClass ) === -1;
+                            // check if we should ignore this class by classname
+                            var shouldIgnore = false;
+                            if ( ignoreClasses ) {
+                                shouldIgnore = ignoreClasses
+                                                    .some( function( classToIgnore ) {
+                                                        return classToIgnore === definedClass;
+                                                    });
+                            }
+                            // check if we should ignore by pattern
+                            if ( ignorePatterns ) {
+                                shouldIgnore = ignorePatterns
+                                                    .some( function( patternToIgnore ) {
+                                                        return patternToIgnore.test( definedClass );
+                                                    });
+                            }
+                            return shouldIgnore ? false : usedClasses.indexOf( definedClass ) === -1;
                         });
 
             // throw an error if there are unused classes

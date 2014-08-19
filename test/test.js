@@ -71,6 +71,43 @@ it( 'should emit the file in happy case', function( done ) {
     stream.end();
 });
 
+it( 'should ignore class patterns', function( done ) {
+    var errorSpy = sinon.spy(),
+        pattern = /spe*/gi,
+        stream = checkCSS({
+            files: 'test/b*.html',
+            ignoreClassPatterns: [ pattern, /unmatched/ ]
+        });
+
+    stream.on( 'error', errorSpy );
+
+    stream.on( 'data', function() {
+        assert.equal( errorSpy.called, false );
+        done();
+    });
+
+    stream.write( bufferedCSS );
+    stream.end();
+});
+
+it( 'should ignore class names', function( done ) {
+    var errorSpy = sinon.spy(),
+        stream = checkCSS({
+            files: 'test/b*.html',
+            ignoreClassNames: [ 'special', 'other' ]
+        });
+
+    stream.on( 'error', errorSpy );
+
+    stream.on( 'data', function() {
+        assert.equal( errorSpy.called, false );
+        done();
+    });
+
+    stream.write( bufferedCSS );
+    stream.end();
+});
+
 it( 'should throw an error if there is no config', function( done ) {
     try {
         stream = checkCSS();
