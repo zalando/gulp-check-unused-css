@@ -94,7 +94,8 @@ it( 'should ignore class names', function( done ) {
     var errorSpy = sinon.spy(),
         stream = checkCSS({
             files: 'test/b*.html',
-            ignoreClassNames: [ 'special', 'other' ]
+            ignoreClassNames: [ 'special' ],
+            ignoreClassPatterns: [ /other/ ]
         });
 
     stream.on( 'error', errorSpy );

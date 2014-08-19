@@ -123,22 +123,27 @@ function checkCSS( opts ) {
                         })
                         // filter unused
                         .filter( function( definedClass ) {
+
+                            var shouldIgnoreByPattern = false,
+                                shouldIgnoreByName = false;
+                            
                             // check if we should ignore this class by classname
-                            var shouldIgnore = false;
                             if ( ignoreClasses ) {
-                                shouldIgnore = ignoreClasses
-                                                    .some( function( classToIgnore ) {
-                                                        return classToIgnore === definedClass;
-                                                    });
+                                shouldIgnoreByName = ignoreClasses
+                                                        .some( function( classToIgnore ) {
+                                                            return classToIgnore === definedClass;
+                                                        });
                             }
                             // check if we should ignore by pattern
                             if ( ignorePatterns ) {
-                                shouldIgnore = ignorePatterns
-                                                    .some( function( patternToIgnore ) {
-                                                        return patternToIgnore.test( definedClass );
-                                                    });
+                                shouldIgnoreByPattern = ignorePatterns
+                                                        .some( function( patternToIgnore ) {
+                                                            return patternToIgnore.test( definedClass );
+                                                        });
                             }
-                            return shouldIgnore ? false : usedClasses.indexOf( definedClass ) === -1;
+                            return shouldIgnoreByName || shouldIgnoreByPattern ?
+                                        false :
+                                        usedClasses.indexOf( definedClass ) === -1;
                         });
 
             // throw an error if there are unused classes
