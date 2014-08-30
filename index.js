@@ -25,10 +25,6 @@ var definedClasses = [],
     usedClasses = [],
     CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])+/g;  // leading dot followed by a letter followed by digits, letters, _ or -
 
-function isClass( def ) {
-    return CLASS_REGEX.test( def );
-}
-
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
 function getClasses( rule ) {
