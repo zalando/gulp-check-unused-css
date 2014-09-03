@@ -27,15 +27,21 @@ var definedClasses = [],
 
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
-function getClasses( rule ) {
+function getClasses( rule, idx ) {
     if ( !rule.type === 'rule ' ) {
         return;
     }
+    
+    if ( !rule.selectors ) {
+        return;
+    }
+
     rule.selectors.forEach( function( selector ) {
         var matches = selector.match( CLASS_REGEX );
         if ( !matches ) {
             return;
         }
+
         matches.forEach( function( match ) {
             if ( definedClasses.indexOf( match ) === -1 ) {
                 definedClasses.push( match );
@@ -86,7 +92,6 @@ function checkCSS( opts ) {
     } else {
         // throw an error if there are no html files configured
         throw new gutil.PluginError( PLUGIN_NAME, 'No HTML files specified' );
-        return done();
     }
 
     return through.obj( function( file, enc, done ) {
@@ -102,13 +107,13 @@ function checkCSS( opts ) {
             return done();
         }
 
-
         filesRead.promise.then( function() {
             // parse css content
             var ast = css.parse( String( file.contents ) ),
                 unused = [];
 
             definedClasses = [];
+
             // find all classes in CSS
             ast.stylesheet.rules.forEach( getClasses );
             
