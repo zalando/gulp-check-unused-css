@@ -1,5 +1,7 @@
 # gulp-check-unused-css
 
+[![Build Status][http://img.shields.io/travis/zalando/gulp-check-unused-css.svg]][https://travis-ci.org/zalando/gulp-check-unused-css]
+
 Check if all your defined CSS classes are used in your HTML files.
 
 ## Usage
