@@ -11,4 +11,10 @@
     content: 'awesome';
 }
 
+@media ( min-width: 100px ) {
+    .table_container {
+        width: 50%;
+    }
+}
+
 .special {}
