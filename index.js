@@ -109,13 +109,26 @@ function checkCSS( opts ) {
 
         filesRead.promise.then( function() {
             // parse css content
-            var ast = css.parse( String( file.contents ) ),
+            var ast,
                 unused = [];
+
+            try {
+                ast = css.parse( String( file.contents ), { silent: false } );
+            } catch( e ) {
+                if ( opts.end ) {
+                    self.emit( 'end' );
+                } else {
+                    self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, e ) );
+                }
+                return done();
+            }
 
             definedClasses = [];
 
             // find all classes in CSS
-            ast.stylesheet.rules.forEach( getClasses );
+            if ( ast.stylesheet ) {
+                ast.stylesheet.rules.forEach( getClasses );
+            }
             
             unused = definedClasses
                         // remove leading dot because that's not in the html
@@ -147,8 +160,8 @@ function checkCSS( opts ) {
                                         usedClasses.indexOf( definedClass ) === -1;
                         });
 
-            // throw an error if there are unused classes
-            if ( unused.length > 0 ) {
+            // throw an error if there are unused defined classes
+            if ( definedClasses.length > 0 && unused.length > 0 ) {
                 var classString = unused.join( ' ' );
                 gutil.log.apply( gutil, [ gutil.colors.red( 'Unused CSS classes:' ), classString ] );
 
