@@ -50,6 +50,27 @@ it( 'should end the stream in bad case if end flag is true', function( done ) {
     stream.write( bufferedCSS );
 });
 
+it( 'should not break if css is empty', function( done ) {
+    var errorSpy = sinon.spy(),
+        emptyCSS = new gutil.File({
+            path: 'test/empty.css',
+            contents: new Buffer( fs.readFileSync( 'test/empty.css', 'utf8' ), 'utf8' )
+        }),
+        stream = checkCSS({
+            files: 'test/*.html'
+        });
+
+    stream.on( 'error', errorSpy );
+
+    stream.on( 'data', function() {
+        assert.equal( errorSpy.called, false );
+        done();
+    });
+
+    stream.write( emptyCSS );
+    stream.end();
+});
+
 it( 'should emit the file in happy case', function( done ) {
     var errorSpy = sinon.spy(),
         stream = checkCSS({
@@ -143,5 +164,23 @@ it( 'should let null files through', function( done ) {
         contents: null
     }));
 
+    stream.end();
+});
+
+it( 'should do nothing if the css is invalid', function( done ) {
+    var errorSpy = sinon.spy(),
+        invalidCSS = new gutil.File({
+            path: 'test/invalid.css',
+            contents: new Buffer( fs.readFileSync( 'test/invalid.css', 'utf8' ), 'utf8' )
+        }),
+        stream = checkCSS({
+            files: 'test/*.html'
+        });
+
+    stream.on( 'error', function() {
+        done();
+    } );
+    
+    stream.write( invalidCSS );
     stream.end();
 });
