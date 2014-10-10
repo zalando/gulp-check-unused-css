@@ -5,7 +5,7 @@
   "homepage": "https://github.com/zalando/gulp-check-unused-css",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/test.js"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
