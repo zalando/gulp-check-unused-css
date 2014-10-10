@@ -5,19 +5,19 @@ var gulp = require( 'gulp' ),
 
 gulp.task( 'check', function() {
     return gulp
-        .src( 'test/test.css' )
+        .src( 'test/bad/bad.css' )
         .pipe( checkCSS({
-            files: 'test/bad.html'
+            files: 'test/bad/bad.html'
         }))
         .pipe( cssmin() )
         .pipe( gulp.dest( 'test/min' ) );
 });
 
 gulp.task( 'watch', function() {
-    return watch({ glob: 'test/test.css' })
+    return watch({ glob: 'test/bad/bad.css' })
         .pipe( checkCSS({
             end: true,
-            files: 'test/bad.html'
+            files: 'test/bad/bad.html'
         }))
         .pipe( cssmin() )
         .pipe( gulp.dest( 'test/min' ) );

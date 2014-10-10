@@ -193,6 +193,23 @@ describe( 'an error should be thrown', function() {
             done();
         }
     });
+
+    it( 'with invalid CSS', function( done ) {
+        var dataSpy = sinon.spy(),
+            invalidCSS = createFile( './test/invalid/invalid.css' ),
+            stream = checkCSS({
+                files: './test/invalid/invalid.html'
+            });
+
+
+        stream.on( 'data', dataSpy );
+        stream.on( 'error', function() {
+            assert.equal( dataSpy.called, false );
+            done();
+        });
+
+        stream.write( invalidCSS );
+    });
 });
 
 describe( 'the NULL case', function() {
@@ -216,24 +233,5 @@ describe( 'the NULL case', function() {
         stream.end();
     });
 
-});
-
-describe( 'the invalid case', function() {
-    it( 'should emit an error', function( done ) {
-        var dataSpy = sinon.spy(),
-            invalidCSS = createFile( './test/invalid/invalid.css' ),
-            stream = checkCSS({
-                files: './test/invalid/invalid.html'
-            });
-
-
-        stream.on( 'data', dataSpy );
-        stream.on( 'error', function() {
-            assert.equal( dataSpy.called, false );
-            done();
-        });
-
-        stream.write( invalidCSS );
-    });
 });
 
