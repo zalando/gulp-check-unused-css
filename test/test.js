@@ -202,13 +202,19 @@ it( 'should not break if there are media queries present', function( done ) {
 
 it( 'should support angular syntax', function( done ) {
     var errorSpy = sinon.spy(),
+        dataSpy = sinon.spy(),
         css = createFile( 'test/angular/angular.css' ),
         stream = checkCSS({
             files: 'test/angular/angular.html'
         });
 
     stream.on( 'error', errorSpy );
-
+    stream.on( 'data', dataSpy );
+    stream.on( 'end', function() {
+        assert.equal( dataSpy.called, true );
+        assert.equal( errorSpy.called, false );
+        done();
+    });
     stream.write( css );
     stream.end();
 })

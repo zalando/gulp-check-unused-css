@@ -61,16 +61,31 @@ function checkCSS( opts ) {
     // create html parser
     var htmlparser = new html.Parser({
         onopentag: function onopentag( name, attribs ) {
+            var all = [];
             if ( attribs[ 'class' ] ) {
                 // if we find an open tag with class attribute, add those to used classes
                 // this will also find classes on script tags, but whatever
                 var used = attribs[ 'class' ].split( ' ' );
-                used.forEach( function( usedClass ) {
-                    if ( usedClasses.indexOf( usedClass ) === -1 ) {
-                        usedClasses.push( usedClass );
-                    }
-                });
+                all.push.apply( all, used );
+                
             }
+            if ( attribs[ 'ng-class' ] ) {
+                var used = attribs[ 'ng-class' ]
+                                .split( ',' )
+                                .map( function( statement ) {
+                                    return statement.substring( 0, statement.indexOf( ':' ) );
+                                })
+                                .map( function( clazz ) {
+                                    return clazz.match( /[a-zA-Z0-9-_]+/gi )[0];
+                                });
+
+                all.push.apply( all, used );
+            }
+            all.forEach( function( usedClass ) {
+                if ( usedClasses.indexOf( usedClass ) === -1 ) {
+                    usedClasses.push( usedClass );
+                }
+            });
         }
     });
 
@@ -183,7 +198,7 @@ function checkCSS( opts ) {
             }
 
             // else proceed
-            gutil.log.apply( gutil, [ gutil.colors.cyan( 'File okay' ), file.path ]);
+            // gutil.log.apply( gutil, [ gutil.colors.cyan( 'File okay' ), file.path ]);
             self.push( file );
             done();
         });
