@@ -5,3 +5,19 @@
 .row {
     margin: auto;
 }
+
+.colon {
+    color: red;
+}
+
+.underscore {
+    color: green;
+}
+
+.x {
+    color: blue;
+}
+
+.data {
+    color: yellow;
+}

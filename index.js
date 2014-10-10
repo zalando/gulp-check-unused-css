@@ -19,6 +19,12 @@ var gutil = require( 'gulp-util' ),     // for gulp plugin error
     Q = require( 'q' ),                 // promise implementation
     html = require( 'htmlparser2' ),    // html parser
 
+    Regular = require( './collector/regular' ),
+    regularClass = new Regular(),
+
+    Angular = require( './collector/angular' ),
+    angularClass = new Angular(),
+
     PLUGIN_NAME = 'gulp-check-unused-css';
 
 var definedClasses = [],
@@ -62,25 +68,10 @@ function checkCSS( opts ) {
     var htmlparser = new html.Parser({
         onopentag: function onopentag( name, attribs ) {
             var all = [];
-            if ( attribs[ 'class' ] ) {
-                // if we find an open tag with class attribute, add those to used classes
-                // this will also find classes on script tags, but whatever
-                var used = attribs[ 'class' ].split( ' ' );
-                all.push.apply( all, used );
-                
-            }
-            if ( attribs[ 'ng-class' ] ) {
-                var used = attribs[ 'ng-class' ]
-                                .split( ',' )
-                                .map( function( statement ) {
-                                    return statement.substring( 0, statement.indexOf( ':' ) );
-                                })
-                                .map( function( clazz ) {
-                                    return clazz.match( /[a-zA-Z0-9-_]+/gi )[0];
-                                });
+            
+            all.push.apply( all, regularClass.collect( attribs ) );
+            all.push.apply( all, angularClass.collect( attribs ) );
 
-                all.push.apply( all, used );
-            }
             all.forEach( function( usedClass ) {
                 if ( usedClasses.indexOf( usedClass ) === -1 ) {
                     usedClasses.push( usedClass );
