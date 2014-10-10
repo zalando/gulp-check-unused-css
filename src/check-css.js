@@ -70,7 +70,9 @@ function checkCSS( opts ) {
             var all = [];
             
             all.push.apply( all, regularClass.collect( attribs ) );
-            all.push.apply( all, angularClass.collect( attribs ) );
+            if ( opts.angular !== false ) {
+                all.push.apply( all, angularClass.collect( attribs ) );
+            }
 
             all.forEach( function( usedClass ) {
                 if ( usedClasses.indexOf( usedClass ) === -1 ) {

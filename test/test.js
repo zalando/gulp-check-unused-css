@@ -154,25 +154,6 @@ describe( 'the happy case', function() {
         stream.write( css );
         stream.end();
     });
-
-    it( 'should support angular syntax', function( done ) {
-        var errorSpy = sinon.spy(),
-            dataSpy = sinon.spy(),
-            css = createFile( 'test/angular/angular.css' ),
-            stream = checkCSS({
-                files: 'test/angular/angular.html'
-            });
-
-        stream.on( 'error', errorSpy );
-        stream.on( 'data', dataSpy );
-        stream.on( 'end', function() {
-            assert.equal( dataSpy.called, true );
-            assert.equal( errorSpy.called, false );
-            done();
-        });
-        stream.write( css );
-        stream.end();
-    });
 });
 
 describe( 'an error should be thrown', function() {
@@ -235,3 +216,42 @@ describe( 'the NULL case', function() {
 
 });
 
+describe( 'the angular syntax', function() {
+
+    it( 'should be deactivateable', function( done ) {
+        var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
+            css = createFile( 'test/angular/angular.css' ),
+            stream = checkCSS({
+                files: 'test/angular/angular.html',
+                angular: false
+            });
+
+        stream.on( 'error', function() {
+            assert.equal( dataSpy.called, false );
+            done();
+        } );
+        stream.on( 'data', dataSpy );
+        
+        stream.write( css );
+    });
+
+    it ( 'should work as advertised', function( done ) {
+        var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
+            css = createFile( 'test/angular/angular.css' ),
+            stream = checkCSS({
+                files: 'test/angular/angular.html'
+            });
+
+        stream.on( 'error', errorSpy );
+        stream.on( 'data', dataSpy );
+        stream.on( 'end', function() {
+            assert.equal( dataSpy.called, true );
+            assert.equal( errorSpy.called, false );
+            done();
+        });
+        stream.write( css );
+        stream.end();
+    });
+});
