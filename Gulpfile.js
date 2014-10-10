@@ -1,7 +1,7 @@
 var gulp = require( 'gulp' ),
     cssmin = require( 'gulp-cssmin' ),
     watch = require( 'gulp-watch' ),
-    checkCSS = require( './index' );
+    checkCSS = require( './src/check-css' );
 
 gulp.task( 'check', function() {
     return gulp

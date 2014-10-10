@@ -1,4 +1,4 @@
-var checkCSS =  require( '../index' ),
+var checkCSS =  require( '../src/check-css' ),
     gutil =     require( 'gulp-util' ),
     assert =    require( 'assert' ),
     path =      require( 'path' ),
