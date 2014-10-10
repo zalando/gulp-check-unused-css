@@ -49,4 +49,6 @@ ast.stylesheet.rules.forEach(function( rule ) {
 
 definedClasses = definedClasses.map( function( c ) { return c.substring( 1 ); });
 
-fs.writeFileSync( argv.file + '.ignore', JSON.stringify( definedClasses ) );
+var ignoreFile = 'module.exports = ' + JSON.stringify( definedClasses ) + ';';
+
+fs.writeFileSync( argv.file + '.ignore', ignoreFile );
