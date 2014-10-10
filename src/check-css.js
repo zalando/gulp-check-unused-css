@@ -17,7 +17,8 @@ var gutil = require( 'gulp-util' ),     // for gulp plugin error
     fs = require( 'fs' ),               // file system access
     glob = require( 'glob' ),           // to read globs like src/main/webapp/**/*.html
     Q = require( 'q' ),                 // promise implementation
-    html = require( 'htmlparser2' ),    // html parser
+    html = require( 'htmlparser2' ),    // html parser,
+    _ = require( 'lodash' ),            // lodash for utilities
 
     Regular = require( './collector/regular' ),
     regularClass = new Regular(),
@@ -31,6 +32,18 @@ var definedClasses = [],
     usedClasses = [],
     CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])+/g;  // leading dot followed by a letter followed by digits, letters, _ or -
 
+// checks whether a class should be ignored
+function shouldIgnore( clazz ) {
+    return function( ignoreRule ) {
+        if ( _.isRegExp( ignoreRule ) ) {
+            return ignoreRule.test( clazz );
+        }
+        if ( _.isString( ignoreRule ) ) {
+            return ignoreRule === clazz;
+        }
+        return true;
+    }
+}
 
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
@@ -83,8 +96,7 @@ function checkCSS( opts ) {
     });
 
     var files,
-        ignoreClasses = opts.ignoreClassNames || false,
-        ignorePatterns= opts.ignoreClassPatterns || false,
+        ignore = opts.ignore || false,
         filesRead = Q.defer();  // resolves when all files are read by glob
 
     if ( opts.files ) {
@@ -152,25 +164,12 @@ function checkCSS( opts ) {
                         })
                         // filter unused
                         .filter( function( definedClass ) {
-
-                            var shouldIgnoreByPattern = false,
-                                shouldIgnoreByName = false;
-                            
+                            var ignoreThis = false;
                             // check if we should ignore this class by classname
-                            if ( ignoreClasses ) {
-                                shouldIgnoreByName = ignoreClasses
-                                                        .some( function( classToIgnore ) {
-                                                            return classToIgnore === definedClass;
-                                                        });
+                            if ( ignore ) {
+                                ignoreThis = ignore.some( shouldIgnore( definedClass ) );
                             }
-                            // check if we should ignore by pattern
-                            if ( ignorePatterns ) {
-                                shouldIgnoreByPattern = ignorePatterns
-                                                        .some( function( patternToIgnore ) {
-                                                            return patternToIgnore.test( definedClass );
-                                                        });
-                            }
-                            return shouldIgnoreByName || shouldIgnoreByPattern ?
+                            return ignoreThis ?
                                         false :
                                         usedClasses.indexOf( definedClass ) === -1;
                         });

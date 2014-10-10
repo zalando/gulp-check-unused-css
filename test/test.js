@@ -102,7 +102,7 @@ describe( 'the happy case', function() {
             css = createFile( 'test/bad/bad.css' ),
             stream = checkCSS({
                 files: 'test/bad/bad.html',
-                ignoreClassPatterns: [ pattern ]
+                ignore: [ pattern ]
             });
 
         stream.on( 'error', errorSpy );
@@ -121,7 +121,7 @@ describe( 'the happy case', function() {
             css = createFile( 'test/bad/bad.css' ),
             stream = checkCSS({
                 files: 'test/bad/bad.html',
-                ignoreClassNames: [ 'row' ]
+                ignore: [ 'row' ]
             });
 
         stream.on( 'error', errorSpy );
