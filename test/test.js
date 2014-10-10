@@ -1,63 +1,58 @@
-var checkCSS = require( '../index' ),
-    gutil = require( 'gulp-util' ),
-    assert = require( 'assert' ),
-    fs = require( 'fs' ),
-    sinon = require( 'sinon' ),
-    css = fs.readFileSync( 'test/test.css', 'utf8' ),
-    stream,
-    bufferedCSS;
+var checkCSS =  require( '../index' ),
+    gutil =     require( 'gulp-util' ),
+    assert =    require( 'assert' ),
+    path =      require( 'path' ),
+    fs =        require( 'fs' ),
+    sinon =     require( 'sinon' );
 
-beforeEach( function() {
-    bufferedCSS = new gutil.File({
-        path: 'test/test.css',
-        contents: new Buffer( css, 'utf8' )
-    });
-});
-
-afterEach( function() {
-    bufferedCSS = null;
-});
+function createFile( file ) {
+    return  new gutil.File({
+                base: path.join( __dirname, path.dirname( file ) ),
+                contents: new Buffer( fs.readFileSync( file ) ),
+                cwd: __dirname,
+                path: file,
+                filename: path.basename( file )
+            });
+}
 
 it( 'should throw an error in bad case', function( done ) {
     var dataSpy = sinon.spy(),
+        css = createFile( 'test/bad/bad.css' ),
         stream = checkCSS({
-            files: 'test/b*.html'
+            files: 'test/bad/bad.html'
         });
 
     stream.on( 'data', dataSpy );
     stream.on( 'error', function( err ) {
         // check correct class
         assert.equal( err.unused.length, 1 );
-        assert.equal( err.unused[ 0 ], 'special' );
+        assert.equal( err.unused[ 0 ], 'row' );
         // check that no file was emitted
         assert.equal( dataSpy.called, false );
 
         done();
     });
 
-    stream.write( bufferedCSS );
-    stream.end();
+    stream.write( css );
 });
 
 it( 'should end the stream in bad case if end flag is true', function( done ) {
-    var stream = checkCSS({
+    var css = createFile( 'test/bad/bad.css' ),
+        stream = checkCSS({
             end: true,
-            files: 'test/b*.html'
+            files: 'test/bad/bad.html'
         });
 
     stream.on( 'end', done );
 
-    stream.write( bufferedCSS );
+    stream.write( css );
 });
 
 it( 'should not break if css is empty', function( done ) {
     var errorSpy = sinon.spy(),
-        emptyCSS = new gutil.File({
-            path: 'test/empty.css',
-            contents: new Buffer( fs.readFileSync( 'test/empty.css', 'utf8' ), 'utf8' )
-        }),
+        emptyCSS = createFile( 'test/empty/empty.css' ),
         stream = checkCSS({
-            files: 'test/*.html'
+            files: 'test/empty/empty.html'
         });
 
     stream.on( 'error', errorSpy );
@@ -73,31 +68,32 @@ it( 'should not break if css is empty', function( done ) {
 
 it( 'should emit the file in happy case', function( done ) {
     var errorSpy = sinon.spy(),
+        css = createFile( 'test/happy/happy.css' ),
         stream = checkCSS({
-            files: 'test/h*.html'
+            files: 'test/happy/happy.html'
         });
 
     stream.on( 'error', errorSpy );
 
     stream.on( 'data', function( buffered ) {
         // check that file is the same
-        assert.equal( String( buffered.contents ), css );
+        assert.equal( String( buffered.contents ), css.contents );
         // check that no error was thrown
         assert.equal( errorSpy.called, false );
 
         done();
     });
 
-    stream.write( bufferedCSS );
-    stream.end();
+    stream.write( css );
 });
 
 it( 'should ignore class patterns', function( done ) {
     var errorSpy = sinon.spy(),
-        pattern = /spe*/gi,
+        pattern = /row/gi,
+        css = createFile( 'test/bad/bad.css' ),
         stream = checkCSS({
-            files: 'test/b*.html',
-            ignoreClassPatterns: [ pattern, /unmatched/ ]
+            files: 'test/bad/bad.html',
+            ignoreClassPatterns: [ pattern ]
         });
 
     stream.on( 'error', errorSpy );
@@ -107,16 +103,16 @@ it( 'should ignore class patterns', function( done ) {
         done();
     });
 
-    stream.write( bufferedCSS );
+    stream.write( css );
     stream.end();
 });
 
 it( 'should ignore class names', function( done ) {
     var errorSpy = sinon.spy(),
+        css = createFile( 'test/bad/bad.css' ),
         stream = checkCSS({
-            files: 'test/b*.html',
-            ignoreClassNames: [ 'special' ],
-            ignoreClassPatterns: [ /other/ ]
+            files: 'test/bad/bad.html',
+            ignoreClassNames: [ 'row' ]
         });
 
     stream.on( 'error', errorSpy );
@@ -126,7 +122,7 @@ it( 'should ignore class names', function( done ) {
         done();
     });
 
-    stream.write( bufferedCSS );
+    stream.write( css );
     stream.end();
 });
 
@@ -151,7 +147,7 @@ it( 'should throw an error if there are no HTML files specified', function( done
 it( 'should let null files through', function( done ) {
     var errorSpy = sinon.spy(),
         stream = checkCSS({
-            files: 'test/b*.html'
+            files: 'test/bad/bad.html'
         });
 
     stream.on( 'error', errorSpy );
@@ -168,19 +164,51 @@ it( 'should let null files through', function( done ) {
 });
 
 it( 'should do nothing if the css is invalid', function( done ) {
-    var errorSpy = sinon.spy(),
-        invalidCSS = new gutil.File({
-            path: 'test/invalid.css',
-            contents: new Buffer( fs.readFileSync( 'test/invalid.css', 'utf8' ), 'utf8' )
-        }),
+    var dataSpy = sinon.spy(),
+        invalidCSS = createFile( './test/invalid/invalid.css' ),
         stream = checkCSS({
-            files: 'test/*.html'
+            files: './test/invalid/invalid.html'
         });
 
+
+    stream.on( 'data', dataSpy );
     stream.on( 'error', function() {
+        assert.equal( dataSpy.called, false );
         done();
-    } );
-    
+    });
+
     stream.write( invalidCSS );
+});
+
+it( 'should not break if there are media queries present', function( done ) {
+    var errorSpy = sinon.spy(),
+        dataSpy = sinon.spy(),
+        css = createFile( 'test/mediaquery/mediaquery.css' ),
+        stream = checkCSS({
+            files: 'test/invalid/invalid.html'
+        });
+
+    stream.on( 'error', errorSpy );
+    stream.on( 'data', dataSpy );
+    stream.on( 'end', function() {
+        assert.equal( errorSpy.called, false );
+        assert.equal( dataSpy.called, true );
+        done();
+    });
+
+    stream.write( css );
     stream.end();
 });
+
+it( 'should support angular syntax', function( done ) {
+    var errorSpy = sinon.spy(),
+        css = createFile( 'test/angular/angular.css' ),
+        stream = checkCSS({
+            files: 'test/angular/angular.html'
+        });
+
+    stream.on( 'error', errorSpy );
+
+    stream.write( css );
+    stream.end();
+})

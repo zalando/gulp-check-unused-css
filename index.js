@@ -25,6 +25,7 @@ var definedClasses = [],
     usedClasses = [],
     CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])+/g;  // leading dot followed by a letter followed by digits, letters, _ or -
 
+
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
 function getClasses( rule, idx ) {
@@ -95,32 +96,38 @@ function checkCSS( opts ) {
     }
 
     return through.obj( function( file, enc, done ) {
-        var self = this;
+        var self = this,
+            doneCalled = false;
 
         if ( file.isNull() ) {
             self.push( file );
+            doneCalled = true;
             return done();
         }
 
         if ( file.isStream()) {
-            self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, 'Streaming not supported' ) );
-            return done();
+            doneCalled = true;
+            return done( new gutil.PluginError( PLUGIN_NAME, 'Streaming not supported' ) );
         }
 
         filesRead.promise.then( function() {
+            // check if done was already called before
+            if ( doneCalled ) {
+                return;
+            }
+
             // parse css content
             var ast,
                 unused = [];
 
             try {
                 ast = css.parse( String( file.contents ), { silent: false } );
-            } catch( e ) {
+            } catch( cssError ) {
                 if ( opts.end ) {
-                    self.emit( 'end' );
+                    return done();
                 } else {
-                    self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, e ) );
+                    return done( cssError );
                 }
-                return done();
             }
 
             definedClasses = [];
@@ -163,7 +170,7 @@ function checkCSS( opts ) {
             // throw an error if there are unused defined classes
             if ( definedClasses.length > 0 && unused.length > 0 ) {
                 var classString = unused.join( ' ' );
-                gutil.log.apply( gutil, [ gutil.colors.red( 'Unused CSS classes:' ), classString ] );
+                gutil.log.apply( gutil, [ gutil.colors.cyan( 'Unused CSS classes' ), gutil.colors.red( file.path ), classString ] );
 
                 if ( opts.end ) {
                     self.emit( 'end' );
@@ -171,12 +178,12 @@ function checkCSS( opts ) {
                 } else {
                     var error = new Error( 'Unused CSS Classes: ' + classString );
                     error.unused = unused;
-                    self.emit( 'error', new gutil.PluginError( PLUGIN_NAME, error ) );
-                    return done();
+                    return done( new gutil.PluginError( PLUGIN_NAME, error ) );
                 }
             }
 
             // else proceed
+            gutil.log.apply( gutil, [ gutil.colors.cyan( 'File okay' ), file.path ]);
             self.push( file );
             done();
         });
