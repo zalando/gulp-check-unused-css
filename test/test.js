@@ -230,7 +230,7 @@ describe( 'the angular syntax', function() {
         stream.on( 'error', function() {
             assert.equal( dataSpy.called, false );
             done();
-        } );
+        });
         stream.on( 'data', dataSpy );
         
         stream.write( css );
@@ -253,5 +253,31 @@ describe( 'the angular syntax', function() {
         });
         stream.write( css );
         stream.end();
+    });
+});
+
+describe( 'predefined ignore rules', function() {
+
+    it( 'should work with bootstrap@3.2.0', function( done ) {
+
+        var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
+            css = createFile( 'test/bootstrap/bootstrap.css' ),
+            stream = checkCSS({
+                files: 'test/bootstrap/bootstrap.html',
+                globals: [ 'bootstrap@3.2.0' ]
+            });
+
+        stream.on( 'error', errorSpy );
+        stream.on( 'data', dataSpy );
+        stream.on( 'end', function() {
+            assert.equal( dataSpy.called, true );
+            assert.equal( errorSpy.called, false );
+            done();
+        });
+
+        stream.write( css );
+        stream.end();
+
     });
 });

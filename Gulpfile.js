@@ -1,6 +1,7 @@
 var gulp = require( 'gulp' ),
     cssmin = require( 'gulp-cssmin' ),
     watch = require( 'gulp-watch' ),
+    jshint = require( 'gulp-jshint' ),
     checkCSS = require( './src/check-css' );
 
 gulp.task( 'check', function() {
@@ -21,4 +22,10 @@ gulp.task( 'watch', function() {
         }))
         .pipe( cssmin() )
         .pipe( gulp.dest( 'test/min' ) );
+});
+
+gulp.task( 'jshint', function() {
+    return gulp.src( './src/check-css.js' )
+            .pipe( jshint() )
+            .pipe( jshint.reporter( 'jshint-stylish' ) );
 });

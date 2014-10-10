@@ -33,6 +33,9 @@
   },
   "devDependencies": {
     "assert": "^1.1.1",
+    "gulp-jshint": "^1.8.5",
+    "jshint-stylish": "^1.0.0",
+    "minimist": "^1.1.0",
     "mocha": "^1.21.4",
     "sinon": "^1.10.3"
   }

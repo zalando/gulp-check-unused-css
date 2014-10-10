@@ -1,4 +1,4 @@
-;
+; // jshint ignore:line
 /**
  *  Copyright 2014 Zalando SE
  *
@@ -8,8 +8,6 @@
  *
  *  http://www.apache.org/licenses/LICENSE-2.0
 **/
-
-'use strict';
 
 var gutil = require( 'gulp-util' ),     // for gulp plugin error
     through = require( 'through2' ),    // stream library
@@ -29,26 +27,29 @@ var gutil = require( 'gulp-util' ),     // for gulp plugin error
     PLUGIN_NAME = 'gulp-check-unused-css';
 
 var definedClasses = [],
+    globals = [],
     usedClasses = [],
     CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])+/g;  // leading dot followed by a letter followed by digits, letters, _ or -
 
 // checks whether a class should be ignored
 function shouldIgnore( clazz ) {
     return function( ignoreRule ) {
+        // we ignore it if an ignore regex matches
         if ( _.isRegExp( ignoreRule ) ) {
             return ignoreRule.test( clazz );
         }
+        // we ignore it if an ignore string is equal
         if ( _.isString( ignoreRule ) ) {
             return ignoreRule === clazz;
         }
         return true;
-    }
+    };
 }
 
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
 function getClasses( rule, idx ) {
-    if ( !rule.type === 'rule ' ) {
+    if ( rule.type !== 'rule' ) {
         return;
     }
     
@@ -62,8 +63,8 @@ function getClasses( rule, idx ) {
             return;
         }
 
-        matches.forEach( function( match ) {
-            if ( definedClasses.indexOf( match ) === -1 ) {
+        _.each( matches, function( match ) {
+            if ( _.indexOf( definedClasses, match ) === -1 ) {
                 definedClasses.push( match );
             }
         });
@@ -87,8 +88,8 @@ function checkCSS( opts ) {
                 all.push.apply( all, angularClass.collect( attribs ) );
             }
 
-            all.forEach( function( usedClass ) {
-                if ( usedClasses.indexOf( usedClass ) === -1 ) {
+            _.each( all, function( usedClass ) {
+                if ( _.indexOf( usedClasses, usedClass ) === -1 ) {
                     usedClasses.push( usedClass );
                 }
             });
@@ -98,6 +99,13 @@ function checkCSS( opts ) {
     var files,
         ignore = opts.ignore || false,
         filesRead = Q.defer();  // resolves when all files are read by glob
+
+    if ( opts.globals ) {
+        opts.globals.forEach( function( global ) {
+            globals.push.apply( globals, require( './global/' + global ) );
+        });
+        globals = _.sortBy( globals );
+    }
 
     if ( opts.files ) {
 
@@ -116,26 +124,18 @@ function checkCSS( opts ) {
     }
 
     return through.obj( function( file, enc, done ) {
-        var self = this,
-            doneCalled = false;
+        var self = this;
 
         if ( file.isNull() ) {
             self.push( file );
-            doneCalled = true;
             return done();
         }
 
         if ( file.isStream()) {
-            doneCalled = true;
             return done( new gutil.PluginError( PLUGIN_NAME, 'Streaming not supported' ) );
         }
 
         filesRead.promise.then( function() {
-            // check if done was already called before
-            if ( doneCalled ) {
-                return;
-            }
-
             // parse css content
             var ast,
                 unused = [];
@@ -155,24 +155,29 @@ function checkCSS( opts ) {
             // find all classes in CSS
             if ( ast.stylesheet ) {
                 ast.stylesheet.rules.forEach( getClasses );
+                usedClasses = _.sortBy( usedClasses );
             }
+
             
-            unused = definedClasses
-                        // remove leading dot because that's not in the html
-                        .map( function( classdef ) {
+
+            unused =   _.chain( definedClasses )
+                        .map(function( classdef ) {
                             return classdef.substring( 1 );
                         })
-                        // filter unused
                         .filter( function( definedClass ) {
-                            var ignoreThis = false;
-                            // check if we should ignore this class by classname
+                            var ignoreThis = false,
+                                isUsed = _.indexOf( usedClasses, definedClass, true ) === -1,
+                                isGlobal = globals.length ? _.indexOf( globals, definedClass, true ) >= 0 : false;
+
+                            // check if we should ignore this class
                             if ( ignore ) {
-                                ignoreThis = ignore.some( shouldIgnore( definedClass ) );
+                                ignoreThis = _.some( ignore, shouldIgnore( definedClass ) );
                             }
                             return ignoreThis ?
                                         false :
-                                        usedClasses.indexOf( definedClass ) === -1;
-                        });
+                                        isUsed && !isGlobal;
+                        })
+                        .value();
 
             // throw an error if there are unused defined classes
             if ( definedClasses.length > 0 && unused.length > 0 ) {
