@@ -15,20 +15,20 @@ function createFile( file ) {
             });
 }
 
-describe( 'the bad case', function() {
+describe( 'the bad CSS case', function() {
 
     it( 'should throw an error by default', function( done ) {
         var dataSpy = sinon.spy(),
-            css = createFile( 'test/bad/bad.css' ),
+            css = createFile( 'test/bad-css/bad.css' ),
             stream = checkCSS({
-                files: 'test/bad/bad.html'
+                files: 'test/bad-css/bad.html'
             });
 
         stream.on( 'data', dataSpy );
         stream.on( 'error', function( err ) {
             // check correct class
-            assert.equal( err.unused.length, 1 );
-            assert.equal( err.unused[ 0 ], 'row' );
+            assert.equal( err.css.length, 1 );
+            assert.equal( err.css[ 0 ], 'row' );
             // check that no file was emitted
             assert.equal( dataSpy.called, false );
 
@@ -39,10 +39,10 @@ describe( 'the bad case', function() {
     });
 
     it( 'should end the stream if end flag is true', function( done ) {
-        var css = createFile( 'test/bad/bad.css' ),
+        var css = createFile( 'test/bad-css/bad.css' ),
             stream = checkCSS({
                 end: true,
-                files: 'test/bad/bad.html'
+                files: 'test/bad-css/bad.html'
             });
 
         stream.on( 'end', done );
@@ -99,9 +99,9 @@ describe( 'the happy case', function() {
     it( 'should ignore class patterns', function( done ) {
         var errorSpy = sinon.spy(),
             pattern = /row/gi,
-            css = createFile( 'test/bad/bad.css' ),
+            css = createFile( 'test/bad-css/bad.css' ),
             stream = checkCSS({
-                files: 'test/bad/bad.html',
+                files: 'test/bad-css/bad.html',
                 ignore: [ pattern ]
             });
 
@@ -118,9 +118,9 @@ describe( 'the happy case', function() {
 
     it( 'should ignore class names', function( done ) {
         var errorSpy = sinon.spy(),
-            css = createFile( 'test/bad/bad.css' ),
+            css = createFile( 'test/bad-css/bad.css' ),
             stream = checkCSS({
-                files: 'test/bad/bad.html',
+                files: 'test/bad-css/bad.html',
                 ignore: [ 'row' ]
             });
 
@@ -198,7 +198,7 @@ describe( 'the NULL case', function() {
     it( 'should let files through', function( done ) {
         var errorSpy = sinon.spy(),
             stream = checkCSS({
-                files: 'test/bad/bad.html'
+                files: 'test/bad-css/bad.html'
             });
 
         stream.on( 'error', errorSpy );

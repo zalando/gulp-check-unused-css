@@ -29,7 +29,7 @@ var gutil = require( 'gulp-util' ),     // for gulp plugin error
 var definedClasses = [],
     globals = [],
     usedClasses = [],
-    CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])+/g;  // leading dot followed by a letter followed by digits, letters, _ or -
+    CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])*/g;  // leading dot followed by a letter followed by digits, letters, _ or -
 
 // checks whether a class should be ignored
 function shouldIgnore( clazz ) {
@@ -46,33 +46,51 @@ function shouldIgnore( clazz ) {
     };
 }
 
+function filterIgnored( ignore ) {
+    return function( clazz ) {
+        var ignoreThis = false,
+            isUsed = _.indexOf( usedClasses, clazz, true ) === -1,
+            isGlobal = globals.length ? _.indexOf( globals, clazz, true ) >= 0 : false;
+
+        // check if we should ignore this class
+        if ( ignore ) {
+            ignoreThis = _.some( ignore, shouldIgnore( clazz ) );
+        }
+        return ignoreThis ? false : !isGlobal;
+    };
+}
+
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
-function getClasses( rule, idx ) {
-    if ( rule.type !== 'rule' ) {
-        return;
-    }
-    
-    if ( !rule.selectors ) {
-        return;
-    }
-
-    rule.selectors.forEach( function( selector ) {
-        var matches = selector.match( CLASS_REGEX );
-        if ( !matches ) {
+function getDefinedClasses( collection ) {
+    return function( rule, idx ) {
+        if ( rule.type !== 'rule' ) {
+            return;
+        }
+        
+        if ( !rule.selectors ) {
             return;
         }
 
-        _.each( matches, function( match ) {
-            if ( _.indexOf( definedClasses, match ) === -1 ) {
-                definedClasses.push( match );
+        rule.selectors.forEach( function( selector ) {
+            var matches = selector.match( CLASS_REGEX );
+            if ( !matches ) {
+                return;
             }
+
+            _.each( matches, function( match ) {
+                if ( _.indexOf( collection, match ) === -1 ) {
+                    collection.push( match.substring( 1 ) );
+                }
+            });
         });
-    });
+    };
 }
 
 // actual function that gets exported
 function checkCSS( opts ) {
+    globals = [];
+    usedClasses = [];
 
     if ( typeof opts === 'undefined' ) {
         opts = {};
@@ -136,10 +154,14 @@ function checkCSS( opts ) {
         }
 
         filesRead.promise.then( function() {
-            // parse css content
             var ast,
-                unused = [];
+                badHTML,
+                badCSS,
+                error,
+                usedUndefined = [], // in HTML, but not in CSS
+                definedUnused = []; // in CSS, but not in HTML
 
+            // parse css content
             try {
                 ast = css.parse( String( file.contents ), { silent: false } );
             } catch( cssError ) {
@@ -154,45 +176,52 @@ function checkCSS( opts ) {
 
             // find all classes in CSS
             if ( ast.stylesheet ) {
-                ast.stylesheet.rules.forEach( getClasses );
+                ast.stylesheet.rules.forEach( getDefinedClasses( definedClasses ) );
                 usedClasses = _.sortBy( usedClasses );
             }
 
-            
+            // gutil.log( 'Defined:', definedClasses );
+            // gutil.log( 'Used:', usedClasses );
 
-            unused =   _.chain( definedClasses )
-                        .map(function( classdef ) {
-                            return classdef.substring( 1 );
-                        })
-                        .filter( function( definedClass ) {
-                            var ignoreThis = false,
-                                isUsed = _.indexOf( usedClasses, definedClass, true ) === -1,
-                                isGlobal = globals.length ? _.indexOf( globals, definedClass, true ) >= 0 : false;
+            definedUnused = _.difference( definedClasses, usedClasses );    // only in CSS
+            usedUndefined = _.difference( usedClasses, definedClasses );    // only in HTML
 
-                            // check if we should ignore this class
-                            if ( ignore ) {
-                                ignoreThis = _.some( ignore, shouldIgnore( definedClass ) );
-                            }
-                            return ignoreThis ?
-                                        false :
-                                        isUsed && !isGlobal;
-                        })
-                        .value();
+            // gutil.log( 'Defined unused:', definedUnused.join( ',' ) );
+            // gutil.log( 'Used undefined:', usedUndefined.join( ',' ) );
 
-            // throw an error if there are unused defined classes
-            if ( definedClasses.length > 0 && unused.length > 0 ) {
-                var classString = unused.join( ' ' );
-                gutil.log.apply( gutil, [ gutil.colors.cyan( 'Unused CSS classes' ), gutil.colors.red( file.path ), classString ] );
+            badHTML = _.filter( usedUndefined, filterIgnored( ignore ) );
+            badCSS = _.filter( definedUnused, filterIgnored( ignore ) );
+
+            // gutil.log( 'Bad HTML:', badHTML.join( ',' ) );
+            // gutil.log( 'Bad CSS:', badCSS.join( ',' ) );
+
+            if ( definedClasses.length && badCSS.length ) {
+                error = new Error( 'Unused CSS classes');
+                error.css = badCSS;
+            }
+            if ( usedClasses.length && badHTML.length ) {
+                if ( !error ) {
+                    error = new Error( 'Undefined HTML classes' );
+                }
+                error.html = badHTML;
+            }
+
+            if ( error ) {
+                if ( error.css ) {
+                    gutil.log.apply( gutil, [ gutil.colors.cyan( 'Unused CSS classes' ), error.css.join( ' ' ) ] );
+                }
+                if ( error.html ) {
+                    gutil.log.apply( gutil, [ gutil.colors.cyan( 'Undefined HTML classes' ), error.html.join( ' ' ) ] );
+                }
 
                 if ( opts.end ) {
                     self.emit( 'end' );
                     return done();
                 } else {
-                    var error = new Error( 'Unused CSS Classes: ' + classString );
-                    error.unused = unused;
                     return done( new gutil.PluginError( PLUGIN_NAME, error ) );
                 }
             }
+
 
             // else proceed
             // gutil.log.apply( gutil, [ gutil.colors.cyan( 'File okay' ), file.path ]);
