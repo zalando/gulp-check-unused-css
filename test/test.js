@@ -20,34 +20,21 @@ describe( 'the bad CSS case', function() {
     it( 'should throw an error by default', function( done ) {
         var dataSpy = sinon.spy(),
             css = createFile( 'test/bad-css/bad.css' ),
-            stream = checkCSS({
-                files: 'test/bad-css/bad.html'
-            });
+            html= createFile( 'test/bad-css/bad.html' ),
+            stream = checkCSS();
 
         stream.on( 'data', dataSpy );
         stream.on( 'error', function( err ) {
             // check correct class
             assert.equal( err.css.length, 1 );
             assert.equal( err.css[ 0 ], 'row' );
-            // check that no file was emitted
-            assert.equal( dataSpy.called, false );
 
             done();
         });
 
         stream.write( css );
-    });
-
-    it( 'should end the stream if end flag is true', function( done ) {
-        var css = createFile( 'test/bad-css/bad.css' ),
-            stream = checkCSS({
-                end: true,
-                files: 'test/bad-css/bad.html'
-            });
-
-        stream.on( 'end', done );
-
-        stream.write( css );
+        stream.write( html);
+        stream.end();
     });
 });
 
@@ -57,9 +44,8 @@ describe( 'the empty case', function() {
     it( 'should not emit an error', function( done ) {
         var errorSpy = sinon.spy(),
             emptyCSS = createFile( 'test/empty/empty.css' ),
-            stream = checkCSS({
-                files: 'test/empty/empty.html'
-            });
+            emptyHTML= createFile( 'test/empty/empty.html' ),
+            stream = checkCSS();
 
         stream.on( 'error', errorSpy );
         stream.on( 'finish', function() {
@@ -67,6 +53,7 @@ describe( 'the empty case', function() {
             done();
         });
 
+        stream.write( emptyHTML );
         stream.write( emptyCSS );
         stream.end();
     });
@@ -74,68 +61,76 @@ describe( 'the empty case', function() {
 
 describe( 'the happy case', function() {
 
-    it( 'should emit the file', function( done ) {
+    it( 'should emit all files', function( done ) {
         var errorSpy = sinon.spy(),
             css = createFile( 'test/happy/happy.css' ),
-            stream = checkCSS({
-                files: 'test/happy/happy.html'
-            });
+            html= createFile( 'test/happy/happy.html' ),
+            stream = checkCSS();
 
         stream.on( 'error', errorSpy );
 
-        var bufferedContent = '';
+        var bufferedContent = [];
         stream.on( 'data', function( buffered ) {
-            bufferedContent = String( buffered.contents );
-            
+            bufferedContent.push( String( buffered.contents ) );
         });
         stream.on( 'finish', function() {
             // check that file is the same
-            assert.equal( bufferedContent, css.contents );
+            assert.equal( bufferedContent.length, 2 );
+            assert.equal( bufferedContent[0], String( html.contents ) );
+            assert.equal( bufferedContent[1], String( css.contents ) );
             // check that no error was thrown
             assert.equal( errorSpy.called, false );
 
             done();
         });
 
+        stream.write( html );
         stream.write( css );
         stream.end();
     });
 
     it( 'should ignore class patterns', function( done ) {
         var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
             pattern = /row/gi,
             css = createFile( 'test/bad-css/bad.css' ),
+            html= createFile( 'test/bad-css/bad.html' ),
             stream = checkCSS({
-                files: 'test/bad-css/bad.html',
                 ignore: [ pattern ]
             });
 
         stream.on( 'error', errorSpy );
-
-        stream.on( 'data', function() {
+        stream.on( 'data', dataSpy );
+        stream.on( 'finish', function() {
+            assert.equal( dataSpy.called, true );
             assert.equal( errorSpy.called, false );
             done();
         });
 
         stream.write( css );
+        stream.write( html );
         stream.end();
     });
 
     it( 'should ignore class names', function( done ) {
         var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
             css = createFile( 'test/bad-css/bad.css' ),
+            html= createFile( 'test/bad-css/bad.html' ),
             stream = checkCSS({
-                files: 'test/bad-css/bad.html',
                 ignore: [ 'row' ]
             });
 
         stream.on( 'error', errorSpy );
+        stream.on( 'data', dataSpy );
 
-        stream.on( 'data', function() {
+        stream.on( 'finish', function() {
+            assert.equal( dataSpy.called, true );
             assert.equal( errorSpy.called, false );
             done();
         });
 
+        stream.write( html );
         stream.write( css );
         stream.end();
     });
@@ -144,9 +139,7 @@ describe( 'the happy case', function() {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
             css = createFile( 'test/mediaquery/mediaquery.css' ),
-            stream = checkCSS({
-                files: 'test/invalid/invalid.html'
-            });
+            stream = checkCSS();
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
@@ -161,23 +154,12 @@ describe( 'the happy case', function() {
     });
 });
 
-describe( 'an error should be thrown', function() {
+describe( 'no error should be thrown', function() {
     it( 'without config', function( done ) {
         try {
             stream = checkCSS();
-        } catch( ex ) {
-            assert.equal( ex.message, 'No HTML files specified' );
             done();
-        }
-    });
-
-    it( 'without HTML files specified', function( done ) {
-        try {
-            stream = checkCSS({ whatever: 'yeah' });
-        } catch( ex ) {
-            assert.equal( ex.message, 'No HTML files specified' );
-            done();
-        }
+        } catch(e) {}
     });
 
     it( 'with invalid CSS', function( done ) {
@@ -186,15 +168,14 @@ describe( 'an error should be thrown', function() {
             invalidCSS = createFile( 'test/invalid/invalid.css' ),
             stream = checkCSS({
                 end: true,
-                files: 'test/invalid/invalid.html'
             });
 
 
         stream.on( 'data', dataSpy );
         stream.on( 'error', errorSpy );
         stream.on( 'end', function() {
-            assert.equal( errorSpy.called, true );
-            assert.equal( dataSpy.called, false );
+            assert.equal( errorSpy.called, false );
+            assert.equal( dataSpy.called, true );
             done();
         });
 
@@ -207,12 +188,10 @@ describe( 'the NULL case', function() {
 
     it( 'should let files through', function( done ) {
         var errorSpy = sinon.spy(),
-            stream = checkCSS({
-                files: 'test/bad-css/bad.html'
-            });
+            stream = checkCSS();
 
         stream.on( 'error', errorSpy );
-        stream.on( 'data', function() {
+        stream.on( 'finish', function() {
             assert.equal( errorSpy.called, false );
             done();
         });
@@ -231,20 +210,21 @@ describe( 'the angular syntax', function() {
     it( 'should be deactivateable', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
+            html= createFile( 'test/angular/angular.html' ),
             css = createFile( 'test/angular/angular.css' ),
             stream = checkCSS({
-                files: 'test/angular/angular.html',
                 angular: false
             });
 
         stream.on( 'finish', function() {
             assert.equal( errorSpy.called, true );
-            assert.equal( dataSpy.called, false );
+            assert.equal( dataSpy.called, true );
             done();
         });
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
         
+        stream.write( html );
         stream.write( css );
         stream.end();
     });
@@ -252,10 +232,9 @@ describe( 'the angular syntax', function() {
     it ( 'should work as advertised', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
+            html= createFile( 'test/angular/angular.html' ),
             css = createFile( 'test/angular/angular.css' ),
-            stream = checkCSS({
-                files: 'test/angular/angular.html'
-            });
+            stream = checkCSS();
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
@@ -264,6 +243,8 @@ describe( 'the angular syntax', function() {
             assert.equal( errorSpy.called, false );
             done();
         });
+
+        stream.write( html );
         stream.write( css );
         stream.end();
     });
@@ -275,9 +256,9 @@ describe( 'predefined ignore rules', function() {
 
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
+            html= createFile( 'test/bootstrap/bootstrap.html' ),
             css = createFile( 'test/bootstrap/bootstrap.css' ),
             stream = checkCSS({
-                files: 'test/bootstrap/bootstrap.html',
                 globals: [ 'bootstrap@3.2.0' ]
             });
 
@@ -289,6 +270,7 @@ describe( 'predefined ignore rules', function() {
             done();
         });
 
+        stream.write( html );
         stream.write( css );
         stream.end();
 
@@ -300,25 +282,20 @@ describe( 'the bad HTML case', function() {
     it( 'should throw an error', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
+            html= createFile( 'test/bad-html/bad.html' ),
             css = createFile( 'test/bad-html/bad.css' ),
             stream = checkCSS({
-                files: 'test/bad-html/bad.html'
             });
 
-        // stream.on( 'error', console.log.bind( console ) );
-        // stream.on( 'data', console.log.bind( console ) );
-        stream.on( 'finish', console.log.bind( console ) );
-        stream.on( 'end', console.log.bind( console ) );
-        stream.on( 'close', console.log.bind( console ) );
+        stream.on( 'error', errorSpy );
+        stream.on( 'data', dataSpy );
+        stream.on( 'finish', function() {
+            assert.equal( errorSpy.called, true );
+            assert.equal( dataSpy.called, true );
+            done();
+        });
 
-        // stream.on( 'error', errorSpy );
-        // stream.on( 'data', dataSpy );
-        // stream.on( 'finish', function() {
-        //     assert.equal( errorSpy.called, true );
-        //     assert.equal( dataSpy.called, false );
-        //     done();
-        // });
-
+        stream.write( html );
         stream.write( css );
         stream.end();
     });

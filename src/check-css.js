@@ -1,4 +1,5 @@
 ; // jshint ignore:line
+
 /**
  *  Copyright 2014 Zalando SE
  *
@@ -12,9 +13,6 @@
 var gutil = require( 'gulp-util' ),     // for gulp plugin error
     through = require( 'through2' ),    // stream library
     css = require( 'css' ),             // css parser
-    fs = require( 'fs' ),               // file system access
-    glob = require( 'glob' ),           // to read globs like src/main/webapp/**/*.html
-    Q = require( 'q' ),                 // promise implementation
     html = require( 'htmlparser2' ),    // html parser,
     _ = require( 'lodash' ),            // lodash for utilities
 
@@ -29,10 +27,12 @@ var gutil = require( 'gulp-util' ),     // for gulp plugin error
 var definedClasses = [],
     globals = [],
     usedClasses = [],
-    CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])*/g;  // leading dot followed by a letter followed by digits, letters, _ or -
+    CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])*/g;  // leading dot & a letter & digits, letters, _ or -
 
 // checks whether a class should be ignored
 function shouldIgnore( clazz ) {
+    'use strict';
+
     return function( ignoreRule ) {
         // we ignore it if an ignore regex matches
         if ( _.isRegExp( ignoreRule ) ) {
@@ -47,9 +47,10 @@ function shouldIgnore( clazz ) {
 }
 
 function filterIgnored( ignore ) {
+    'use strict';
+
     return function( clazz ) {
         var ignoreThis = false,
-            isUsed = _.indexOf( usedClasses, clazz, true ) === -1,
             isGlobal = globals.length ? _.indexOf( globals, clazz, true ) >= 0 : false;
 
         // check if we should ignore this class
@@ -63,7 +64,9 @@ function filterIgnored( ignore ) {
 // checks if the selectors of a CSS rule are a class
 // an adds them to the defined classes
 function getDefinedClasses( collection ) {
-    return function( rule, idx ) {
+    'use strict';
+
+    return function( rule ) {
         if ( rule.type !== 'rule' ) {
             return;
         }
@@ -89,11 +92,25 @@ function getDefinedClasses( collection ) {
 
 // actual function that gets exported
 function checkCSS( opts ) {
+    'use strict';
+
     globals = [];
     usedClasses = [];
+    definedClasses = [];
 
     if ( typeof opts === 'undefined' ) {
         opts = {};
+    }
+
+    var error,
+        ignore = opts.ignore || false;
+
+    // import global classes
+    if ( opts.globals ) {
+        opts.globals.forEach( function( global ) {
+            globals.push.apply( globals, require( './global/' + global ) );
+        });
+        globals = _.sortBy( globals );
     }
 
     // create html parser
@@ -102,6 +119,7 @@ function checkCSS( opts ) {
             var all = [];
             
             all.push.apply( all, regularClass.collect( attribs ) );
+
             if ( opts.angular !== false ) {
                 all.push.apply( all, angularClass.collect( attribs ) );
             }
@@ -114,34 +132,7 @@ function checkCSS( opts ) {
         }
     });
 
-    var files,
-        ignore = opts.ignore || false,
-        filesRead = Q.defer();  // resolves when all files are read by glob
-
-    if ( opts.globals ) {
-        opts.globals.forEach( function( global ) {
-            globals.push.apply( globals, require( './global/' + global ) );
-        });
-        globals = _.sortBy( globals );
-    }
-
-    if ( opts.files ) {
-
-        glob( opts.files, null, function( err, globFiles ) {
-            // put all files in html parser
-            globFiles.forEach( function( filename ) {
-                var file = fs.readFileSync( filename, 'utf8' );
-                htmlparser.write( file );
-            });
-
-            filesRead.resolve();
-        });
-    } else {
-        // throw an error if there are no html files configured
-        throw new gutil.PluginError( PLUGIN_NAME, 'No HTML files specified' );
-    }
-
-    return through.obj( function( file, enc, done ) {
+    var transform = through.obj( function( file, enc, done ) {
         var self = this;
 
         if ( file.isNull() ) {
@@ -153,73 +144,66 @@ function checkCSS( opts ) {
             return done( new gutil.PluginError( PLUGIN_NAME, 'Streaming not supported' ) );
         }
 
-        filesRead.promise.then( function() {
-            var ast,
-                badHTML,
-                badCSS,
-                error,
-                usedUndefined = [], // in HTML, but not in CSS
-                definedUnused = []; // in CSS, but not in HTML
+        var ast;
 
-            // parse css content
-            try {
-                ast = css.parse( String( file.contents ), { silent: false } );
-            } catch( cssError ) {
-                return done( cssError );
-            }
-
-            definedClasses = [];
-
+        // first try to parse css
+        try {
+            ast = css.parse( String( file.contents ), { silent: false } );
             // find all classes in CSS
             if ( ast.stylesheet ) {
                 ast.stylesheet.rules.forEach( getDefinedClasses( definedClasses ) );
                 usedClasses = _.sortBy( usedClasses );
             }
+        } catch( ex ) {
+            // if it doesn't work, put it into html parser
+            // this has to work because in worst case no onOpenTag will be triggered
+            htmlparser.write( String( file.contents ) );
+        }
 
-            // gutil.log( 'Defined:', definedClasses );
-            // gutil.log( 'Used:', usedClasses );
-
-            definedUnused = _.difference( definedClasses, usedClasses );    // only in CSS
-            usedUndefined = _.difference( usedClasses, definedClasses );    // only in HTML
-
-            // gutil.log( 'Defined unused:', definedUnused.join( ',' ) );
-            // gutil.log( 'Used undefined:', usedUndefined.join( ',' ) );
-
-            badHTML = _.filter( usedUndefined, filterIgnored( ignore ) );
-            badCSS = _.filter( definedUnused, filterIgnored( ignore ) );
-
-            // gutil.log( 'Bad HTML:', badHTML.join( ',' ) );
-            // gutil.log( 'Bad CSS:', badCSS.join( ',' ) );
-
-            if ( definedClasses.length && badCSS.length ) {
-                error = new Error( 'Unused CSS classes');
-                error.css = badCSS;
-            }
-            if ( usedClasses.length && badHTML.length ) {
-                if ( !error ) {
-                    error = new Error( 'Undefined HTML classes' );
-                }
-                error.html = badHTML;
-            }
-
-            if ( error ) {
-                if ( error.css ) {
-                    gutil.log.apply( gutil, [ gutil.colors.cyan( 'Unused CSS classes' ), error.css.join( ' ' ) ] );
-                }
-                if ( error.html ) {
-                    gutil.log.apply( gutil, [ gutil.colors.cyan( 'Undefined HTML classes' ), error.html.join( ' ' ) ] );
-                }
-
-                return done( new gutil.PluginError( PLUGIN_NAME, error ) );
-            }
-
-
-            // else proceed
-            // gutil.log.apply( gutil, [ gutil.colors.cyan( 'File okay' ), file.path ]);
-            self.push( file );
-            done();
-        });
+        // just emit the file for later use
+        self.push( file );
+        done();
     });
+
+    // we have to wait until we received all files
+    // otherwise we would throw an error after the first one
+    transform.on( 'finish', function() {
+        var badHTML,
+            badCSS,
+            usedUndefined = [], // in HTML, but not in CSS
+            definedUnused = []; // in CSS, but not in HTML
+
+
+        definedUnused = _.difference( definedClasses, usedClasses );    // only in CSS
+        usedUndefined = _.difference( usedClasses, definedClasses );    // only in HTML
+
+        badHTML = _.filter( usedUndefined, filterIgnored( ignore ) );
+        badCSS =  _.filter( definedUnused, filterIgnored( ignore ) );
+
+        if ( definedClasses.length && badCSS.length ) {
+            error = new Error( 'Unused CSS classes');
+            error.css = badCSS;
+        }
+        if ( usedClasses.length && badHTML.length ) {
+            if ( !error ) {
+                error = new Error( 'Undefined HTML classes' );
+            }
+            error.html = badHTML;
+        }
+
+        if ( error ) {
+            if ( error.css ) {
+                gutil.log.apply( gutil, [ gutil.colors.cyan( 'Unused CSS classes' ), error.css.join( ' ' ) ] );
+            }
+            if ( error.html ) {
+                gutil.log.apply( gutil, [ gutil.colors.cyan( 'Undefined HTML classes' ), error.html.join( ' ' ) ] );
+            }
+
+            this.emit( 'error', new gutil.PluginError( PLUGIN_NAME, error ) );
+        }
+    });
+
+    return transform;
 }
 
 module.exports = checkCSS;
