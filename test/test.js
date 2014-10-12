@@ -62,8 +62,7 @@ describe( 'the empty case', function() {
             });
 
         stream.on( 'error', errorSpy );
-
-        stream.on( 'data', function() {
+        stream.on( 'finish', function() {
             assert.equal( errorSpy.called, false );
             done();
         });
@@ -84,9 +83,14 @@ describe( 'the happy case', function() {
 
         stream.on( 'error', errorSpy );
 
+        var bufferedContent = '';
         stream.on( 'data', function( buffered ) {
+            bufferedContent = String( buffered.contents );
+            
+        });
+        stream.on( 'finish', function() {
             // check that file is the same
-            assert.equal( String( buffered.contents ), css.contents );
+            assert.equal( bufferedContent, css.contents );
             // check that no error was thrown
             assert.equal( errorSpy.called, false );
 
@@ -94,6 +98,7 @@ describe( 'the happy case', function() {
         });
 
         stream.write( css );
+        stream.end();
     });
 
     it( 'should ignore class patterns', function( done ) {
@@ -145,7 +150,7 @@ describe( 'the happy case', function() {
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
-        stream.on( 'end', function() {
+        stream.on( 'finish', function() {
             assert.equal( errorSpy.called, false );
             assert.equal( dataSpy.called, true );
             done();
@@ -177,19 +182,24 @@ describe( 'an error should be thrown', function() {
 
     it( 'with invalid CSS', function( done ) {
         var dataSpy = sinon.spy(),
-            invalidCSS = createFile( './test/invalid/invalid.css' ),
+            errorSpy = sinon.spy(),
+            invalidCSS = createFile( 'test/invalid/invalid.css' ),
             stream = checkCSS({
-                files: './test/invalid/invalid.html'
+                end: true,
+                files: 'test/invalid/invalid.html'
             });
 
 
         stream.on( 'data', dataSpy );
-        stream.on( 'error', function() {
+        stream.on( 'error', errorSpy );
+        stream.on( 'end', function() {
+            assert.equal( errorSpy.called, true );
             assert.equal( dataSpy.called, false );
             done();
         });
 
         stream.write( invalidCSS );
+        stream.end();
     });
 });
 
@@ -227,13 +237,16 @@ describe( 'the angular syntax', function() {
                 angular: false
             });
 
-        stream.on( 'error', function() {
+        stream.on( 'finish', function() {
+            assert.equal( errorSpy.called, true );
             assert.equal( dataSpy.called, false );
             done();
         });
+        stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
         
         stream.write( css );
+        stream.end();
     });
 
     it ( 'should work as advertised', function( done ) {
@@ -246,7 +259,7 @@ describe( 'the angular syntax', function() {
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
-        stream.on( 'end', function() {
+        stream.on( 'finish', function() {
             assert.equal( dataSpy.called, true );
             assert.equal( errorSpy.called, false );
             done();
@@ -270,7 +283,7 @@ describe( 'predefined ignore rules', function() {
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
-        stream.on( 'end', function() {
+        stream.on( 'finish', function() {
             assert.equal( dataSpy.called, true );
             assert.equal( errorSpy.called, false );
             done();
@@ -279,5 +292,34 @@ describe( 'predefined ignore rules', function() {
         stream.write( css );
         stream.end();
 
+    });
+});
+
+describe( 'the bad HTML case', function() {
+
+    it( 'should throw an error', function( done ) {
+        var errorSpy = sinon.spy(),
+            dataSpy = sinon.spy(),
+            css = createFile( 'test/bad-html/bad.css' ),
+            stream = checkCSS({
+                files: 'test/bad-html/bad.html'
+            });
+
+        // stream.on( 'error', console.log.bind( console ) );
+        // stream.on( 'data', console.log.bind( console ) );
+        stream.on( 'finish', console.log.bind( console ) );
+        stream.on( 'end', console.log.bind( console ) );
+        stream.on( 'close', console.log.bind( console ) );
+
+        // stream.on( 'error', errorSpy );
+        // stream.on( 'data', dataSpy );
+        // stream.on( 'finish', function() {
+        //     assert.equal( errorSpy.called, true );
+        //     assert.equal( dataSpy.called, false );
+        //     done();
+        // });
+
+        stream.write( css );
+        stream.end();
     });
 });

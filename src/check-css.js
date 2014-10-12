@@ -165,11 +165,7 @@ function checkCSS( opts ) {
             try {
                 ast = css.parse( String( file.contents ), { silent: false } );
             } catch( cssError ) {
-                if ( opts.end ) {
-                    return done();
-                } else {
-                    return done( cssError );
-                }
+                return done( cssError );
             }
 
             definedClasses = [];
@@ -214,12 +210,7 @@ function checkCSS( opts ) {
                     gutil.log.apply( gutil, [ gutil.colors.cyan( 'Undefined HTML classes' ), error.html.join( ' ' ) ] );
                 }
 
-                if ( opts.end ) {
-                    self.emit( 'end' );
-                    return done();
-                } else {
-                    return done( new gutil.PluginError( PLUGIN_NAME, error ) );
-                }
+                return done( new gutil.PluginError( PLUGIN_NAME, error ) );
             }
 
 

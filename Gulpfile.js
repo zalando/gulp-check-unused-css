@@ -6,19 +6,18 @@ var gulp = require( 'gulp' ),
 
 gulp.task( 'check', function() {
     return gulp
-        .src( 'test/bad/bad.css' )
+        .src( 'test/bad-css/bad.css' )
         .pipe( checkCSS({
-            files: 'test/bad/bad.html'
+            files: 'test/bad-css/bad.html'
         }))
         .pipe( cssmin() )
         .pipe( gulp.dest( 'test/min' ) );
 });
 
 gulp.task( 'watch', function() {
-    return watch({ glob: 'test/bad/bad.css' })
+    return watch({ glob: 'test/bad-css/bad.css' })
         .pipe( checkCSS({
-            end: true,
-            files: 'test/bad/bad.html'
+            files: 'test/bad-css/bad.html'
         }))
         .pipe( cssmin() )
         .pipe( gulp.dest( 'test/min' ) );
