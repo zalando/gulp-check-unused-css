@@ -120,7 +120,7 @@ function checkCSS( opts ) {
             
             all.push.apply( all, regularClass.collect( attribs ) );
 
-            if ( opts.angular !== false ) {
+            if ( opts.angular ) {
                 all.push.apply( all, angularClass.collect( attribs ) );
             }
 

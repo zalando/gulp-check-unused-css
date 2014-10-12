@@ -207,14 +207,12 @@ describe( 'the NULL case', function() {
 
 describe( 'the angular syntax', function() {
 
-    it( 'should be deactivateable', function( done ) {
+    it( 'should be off by default', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
             html= createFile( 'test/angular/angular.html' ),
             css = createFile( 'test/angular/angular.css' ),
-            stream = checkCSS({
-                angular: false
-            });
+            stream = checkCSS();
 
         stream.on( 'finish', function() {
             assert.equal( errorSpy.called, true );
@@ -229,12 +227,14 @@ describe( 'the angular syntax', function() {
         stream.end();
     });
 
-    it ( 'should work as advertised', function( done ) {
+    it ( 'should be activateable', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
             html= createFile( 'test/angular/angular.html' ),
             css = createFile( 'test/angular/angular.css' ),
-            stream = checkCSS();
+            stream = checkCSS({
+                angular: true
+            });
 
         stream.on( 'error', errorSpy );
         stream.on( 'data', dataSpy );
