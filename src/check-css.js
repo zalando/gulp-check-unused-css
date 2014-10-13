@@ -108,7 +108,11 @@ function checkCSS( opts ) {
     // import global classes
     if ( opts.globals ) {
         opts.globals.forEach( function( global ) {
-            globals.push.apply( globals, require( './global/' + global ) );
+            if ( _.isString( global ) ) {
+                globals.push.apply( globals, require( './global/' + global ) );
+            } else if ( _.isArray( global ) ) {
+                globals.push.apply( globals, global );
+            }
         });
         globals = _.sortBy( globals );
     }
@@ -152,7 +156,6 @@ function checkCSS( opts ) {
             // find all classes in CSS
             if ( ast.stylesheet ) {
                 ast.stylesheet.rules.forEach( getDefinedClasses( definedClasses ) );
-                usedClasses = _.sortBy( usedClasses );
             }
         } catch( ex ) {
             // if it doesn't work, put it into html parser

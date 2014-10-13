@@ -252,6 +252,24 @@ describe( 'the angular syntax', function() {
 
 describe( 'predefined ignore rules', function() {
 
+    it( 'should be addable', function( done ) {
+
+        var errorSpy = sinon.spy(),
+            html = createFile( 'test/own-global/own.html' ),
+            stream = checkCSS({
+                globals: [ [ 'container', 'row' ] ]
+            });
+
+        stream.on( 'error', errorSpy );
+        stream.on( 'finish', function() {
+            assert.equal( errorSpy.called, false );
+            done();
+        });
+
+        stream.write( html );
+        stream.end();
+    });
+
     it( 'should work with bootstrap@3.2.0', function( done ) {
 
         var errorSpy = sinon.spy(),
