@@ -99,6 +99,7 @@ Since 1.1.0 you can also add ``globals: [ '{framework}@{version}' ]`` to your o
 
 ## Changelog
 
+* ``2.1.1``: Support for custom globals
 * ``2.0.1``: Fix main file for npm
 * ``2.0.0``: Check HTML files, other breaking changes. See [Upgrading](#upgrading)
 * ``1.1.0``: Add support for frameworks
