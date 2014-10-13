@@ -74,7 +74,30 @@ Since 1.1.0 you can also add ``globals: [ '{framework}@{version}' ]`` to your o
             globals: [ 'bootstrap@3.2.0' ]
         }));
 
-### Supported globals
+And since 2.1.1 it is also possible to add your own globals. Since a "global" is only an array of strings or regexes, you can do it like this:
+
+    gulp
+        .src( 'app.*' )
+        .pipe( checkCSS({
+            globals: [ [ 'ignore', /^custom-/ ] ]
+        }));
+
+Or you define a module that exports this array and require it:
+
+
+    // custom-global.js
+    module.exports = [ 'ignore', /^custom-/ ];
+
+    // Gulpfile
+    gulp
+        .src( 'app.*' )
+        .pipe( checkCSS({
+            globals: [ require( './custom-global' ) ]
+        }));
+
+This way you could also automatically create your custom global.
+
+### Globals that work out of the box
 
 * Bootstrap 3.2.0 (``bootstrap@3.2.0``)
 
@@ -86,7 +109,7 @@ Since 1.1.0 you can also add ``globals: [ '{framework}@{version}' ]`` to your o
     # hack hack hack
     npm test
 
-### Add a global
+### Add a global to the project's source
 
 0. Fork the project
 1. Acquire CSS file
