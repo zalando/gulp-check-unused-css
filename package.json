@@ -1,6 +1,6 @@
 {
   "name": "gulp-check-unused-css",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Checks your CSS for unused classes in HTML templates",
   "homepage": "https://github.com/zalando/gulp-check-unused-css",
   "main": "src/check-css.js",

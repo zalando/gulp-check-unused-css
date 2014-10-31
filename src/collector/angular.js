@@ -25,8 +25,15 @@ function angularCollector() {
                     return statement.substring( 0, statement.indexOf( ':' ) );
                 })
                 .map( function( clazz ) {
-                    return clazz.match( /[a-zA-Z0-9-_]+/gi )[0];
+                    var result = clazz.match( /[a-zA-Z0-9-_]+/gi );
+                    if ( result && result.length ) {
+                        return result[ 0 ];
+                    }
+                    return undefined;
                 });
+        })
+        .filter( function( clazz ) {
+            return !_.isUndefined( clazz );
         })
         .forEach( function( cs ) {
             classes.push.apply( classes, cs );
