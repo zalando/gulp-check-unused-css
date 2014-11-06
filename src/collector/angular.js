@@ -19,18 +19,29 @@ function angularCollector() {
         // now get dem classes
         tags
         .map( function( tag ) {
-            return attributes[ tag ]
-                .split( ',' )
-                .map( function( statement ) {
-                    return statement.substring( 0, statement.indexOf( ':' ) );
-                })
-                .map( function( clazz ) {
-                    var result = clazz.match( /[a-zA-Z0-9-_]+/gi );
-                    if ( result && result.length ) {
-                        return result[ 0 ];
-                    }
-                    return undefined;
-                });
+            // assuming { condition: value } here
+            if ( attributes[ tag ][ 0 ] === '{' ) {
+
+
+                return attributes[ tag ]
+                    .split( ',' )
+                    .map( function( statement ) {
+                        return statement.substring( 0, statement.indexOf( ':' ) );
+                    })
+                    .map( function( clazz ) {
+                        var result = clazz.match( /[a-zA-Z0-9-_]+/gi );
+                        if ( result && result.length ) {
+                            return result[ 0 ];
+                        }
+                        return undefined;
+                    });
+            } else if ( [ '\'', '"' ].indexOf( attributes[ tag ][ 0 ] ) >= 0 ) {
+                // it's a string we need to check
+                return [ attributes[ tag ].substring( 1, attributes[ tag ].length - 1 ) ];
+            } else {
+                // it's a variable, ignore
+                return [];
+            }
         })
         .filter( function( clazz ) {
             return !_.isUndefined( clazz );

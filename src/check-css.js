@@ -122,7 +122,7 @@ function checkCSS( opts ) {
         onopentag: function onopentag( name, attribs ) {
             var all = [];
             
-            all.push.apply( all, regularClass.collect( attribs ) );
+            all.push.apply( all, regularClass.collect( attribs, opts.angular ) );
 
             if ( opts.angular ) {
                 all.push.apply( all, angularClass.collect( attribs ) );
