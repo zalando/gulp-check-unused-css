@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<svg width="580" height="400" xmlns="http://www.w3.org/2000/svg">
+<svg width="580" height="400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
  <g>
   <title>background</title>
@@ -10,7 +10,7 @@
  </g>
  <g>
   <title>Layer 1</title>
-  <g id="svg_5">
+  <g id="svg_5" xlink:href="http://google.com">
    <ellipse fill-opacity="0.5" ry="96" rx="96" id="svg_2" cy="98.5" cx="455.385536" stroke-width="0" stroke="#000" fill="#007fff"/>
    <text xml:space="preserve" text-anchor="left" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_4" y="106.736984" x="422.719851" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#191919">HTML</text>
   </g>
