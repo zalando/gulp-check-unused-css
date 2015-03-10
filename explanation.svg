@@ -10,10 +10,12 @@
  </g>
  <g>
   <title>Layer 1</title>
-  <g id="svg_5" xlink:href="http://google.com">
+  <a xlink:href="http://google.com">
+  <g id="svg_5">
    <ellipse fill-opacity="0.5" ry="96" rx="96" id="svg_2" cy="98.5" cx="455.385536" stroke-width="0" stroke="#000" fill="#007fff"/>
    <text xml:space="preserve" text-anchor="left" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_4" y="106.736984" x="422.719851" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#191919">HTML</text>
   </g>
+  </a>
   <g id="svg_6">
    <ellipse fill-opacity="0.5" ry="96" rx="96" id="svg_1" cy="98.5" cx="315.5" stroke-width="0" stroke="#000" fill="#ff007f"/>
    <text xml:space="preserve" text-anchor="left" font-family="Helvetica, Arial, sans-serif" font-size="24" id="svg_3" y="106.736984" x="290.826218" stroke-opacity="null" stroke-width="0" stroke="#000" fill="#191919">CSS</text>
