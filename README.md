@@ -4,6 +4,10 @@
 
 Check if all your defined CSS classes are used in your HTML files and vice versa.
 
+## Deprecation warning
+
+I didn’t expect this plugin to be considered useful by this many people. To make it useful to even more I made it more extensible. Since this meant a breaking API change anyways, this plugin is now deprecated (i.e. I won’t actively develop it further). Please consider switching to [symdiff](https://symdiff.github.io), the new and better gulp-check-unused-css, for your next project.
+
 ## WAT?
 
 Consider this picture:
