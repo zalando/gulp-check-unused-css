@@ -2,7 +2,12 @@ var _ = require( 'lodash' );
 
 var NG_TAG = /((data|x)[-:_])?ng[-:_]class/i;
 
+/**
+ * @description - This collector obtains all classes added to html elements using angular (such as ng-class)
+ * @return - collection of classes added to html using angular
+ */
 function angularCollector() {
+    'use strict';
     this.collect = function collect( attributes ) {
         var classes = [],
             tags = [];
@@ -37,7 +42,7 @@ function angularCollector() {
                     });
             } else if ( [ '\'', '"' ].indexOf( attributes[ tag ][ 0 ] ) >= 0 ) {
                 // it's a string we need to check
-                return [ attributes[ tag ].substring( 1, attributes[ tag ].length - 1 ) ];
+                return [ attributes[ tag ].substring( 1, attributes[ tag ].length - 1 ) ];
             } else {
                 // it's a variable, ignore
                 return [];
@@ -51,7 +56,7 @@ function angularCollector() {
         });
 
         return classes;
-    }
+    };
 }
 
 module.exports = angularCollector;

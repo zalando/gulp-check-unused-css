@@ -21,6 +21,12 @@
     "name": "Nikolaus Piccolotto",
     "email": "nikolaus.piccolotto@zalando.de"
   },
+  "contributors": [
+      {
+          "name": "David Jones",
+          "email": "david.martin.jones@zalando.de"
+      }
+  ],
   "license": "Apache2",
   "dependencies": {
     "css": "2.1.0",
@@ -33,6 +39,9 @@
   },
   "devDependencies": {
     "assert": "1.1.1",
+    "gulp": "3.9.1",
+    "gulp-cssmin": "0.1.7",
+    "gulp-watch": "4.3.5",
     "gulp-jshint": "1.8.5",
     "gulp-plumber": "0.6.6",
     "jshint-stylish": "1.0.0",
