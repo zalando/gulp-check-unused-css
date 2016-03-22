@@ -6,7 +6,7 @@ gulp-check-unused-css checks to ensure that all of your defined CSS classes are 
 
 ## Why gulp-check-unused-css
 
-Consider this Ven diagram:
+Consider this Venn diagram:
 
 ![Explanation](explanation.png)
 
@@ -134,7 +134,7 @@ This way you could also automatically create your custom global.
 * ``0.0.3``: Introduce ``ignoreClassNames``, ``ignoreClassPatterns``
 
 ##Contributions/TODO List
-This project was recently revived and is actively and enthusiastically seeking contributors. Here's the plan for its necst development phase:
+This project was recently revived and is actively and enthusiastically seeking contributors. Here's the plan for its next development phase:
 - Improve code documentation
 - Update dependencies and gulp tasks
 - Add support for LESS/Sass
