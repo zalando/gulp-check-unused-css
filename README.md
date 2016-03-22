@@ -2,23 +2,19 @@
 
 [![Build Status](http://img.shields.io/travis/zalando/gulp-check-unused-css.svg)](https://travis-ci.org/zalando/gulp-check-unused-css)
 
-Check if all your defined CSS classes are used in your HTML files and vice versa.
+gulp-check-unused-css checks to ensure that all of your defined CSS classes are used in your HTML files, and vice versa.
 
-## Deprecation warning
+## Why gulp-check-unused-css
 
-I didn’t expect this plugin to be considered useful by this many people. To make it useful to even more I made it more extensible. Since this meant a breaking API change anyways, this plugin is now deprecated (i.e. I won’t actively develop it further). Please consider switching to [symdiff](https://symdiff.github.io), the new and better gulp-check-unused-css, for your next project.
-
-## WAT?
-
-Consider this picture:
+Consider this Ven diagram:
 
 ![Explanation](explanation.png)
 
 Figure a) represents what you have now. Some classes are defined in your CSS, but never used in the templates. Some classes used in the templates don't appear in your CSS.
 
-Figure b) represents what you actually want. Keeping your CSS and HTML clean improves maintainability of your code. Also you do not send useless bytes to your users, which makes your site loading (slightly, but still) faster.
+Figure b) represents what you actually want. Keeping your CSS and HTML clean improves the maintainability of your code. You don't want to send useless bytes to your users, because you want site loading to be as fast as possible.
 
-``gulp-check-unused-css``, even though the name is misleading now, will check for the not overlapping parts of figure a) and throw an error if it encounters them.
+``gulp-check-unused-css`` aims to check for the not-overlapping parts of figure a) and throw an error if it encounters them.
 
 ## Installation
 
@@ -26,7 +22,7 @@ Figure b) represents what you actually want. Keeping your CSS and HTML clean imp
 
 ## Upgrading
 
-In case you are upgrading from ``0.0.x`` you should really, REALLY read the docs again. Things that changed:
+If you are upgrading from ``0.0.x``, you should really, REALLY read the docs again. Things that have changed since this plugin's original release:
 
 * How you put HTML files in the plugin
 * What this plugin actually checks
@@ -34,7 +30,7 @@ In case you are upgrading from ``0.0.x`` you should really, REALLY read the docs
 * How to prevent those errors from breaking your build
 * Inverted meaning of ``angular`` option (now off by default)
 
-So basically everything that's important has changed since. I didn't publish the two ``1.x.y`` versions, so no worries there.
+I didn't publish the two ``1.x.y`` versions, so no worries there.
 
 ## Usage
 
@@ -49,7 +45,7 @@ For advanced use with ``gulp-watch`` check out the [Gulpfile](Gulpfile.js).
 
 ![Screenshot](screenshot.png)
 
-The plugin will emit all files you put in (because it has to read all of them before checking), but occasionally break your pipe. This is good for automated build processes, e.g. in CI systems like Jenkins or Travis.
+The plugin will emit all files you put in, because it has to read all of them before checking. Occasionally, however, it will break your pipe. This is good for automated build processes, e.g. in CI systems like Jenkins or Travis.
 
 ## Options
 
@@ -58,9 +54,9 @@ The plugin will emit all files you put in (because it has to read all of them be
 * ``angular``: Boolean, passing ``true`` will turn the support for ``ng-class`` on.
 
 
-## Ignoring classes
+## Ignoring Classes
 
-This plugin is inspired by the [workflow at Github](http://markdotto.com/2014/07/23/githubs-css/#linting), where a build fails if the classes used in the CSS and the templates do not overlap exactly. However, most of us do not write 100 % of the CSS ourselves but rely on frameworks such as Bootstrap. That's why there are some options available to ignore "global" or "vendor" classes.
+This plugin is inspired by the [workflow at Github](http://markdotto.com/2014/07/23/githubs-css/#linting), where a build fails if the classes used in the CSS and the templates do not overlap exactly. However, most of us do not write 100% of the CSS ourselves but rely on frameworks such as Bootstrap. That's why there are some options available to ignore "global" or "vendor" classes.
 
 You can provide a list of class names or regular expressions that should be ignored.
 
@@ -78,7 +74,7 @@ Since 1.1.0 you can also add ``globals: [ '{framework}@{version}' ]`` to your o
             globals: [ 'bootstrap@3.2.0' ]
         }));
 
-And since 2.1.1 it is also possible to add your own globals. Since a "global" is only an array of strings or regexes, you can do it like this:
+And since 2.1.1, you can add your own globals. A "global" is only an array of strings or regexes, so you can do it like this:
 
     gulp
         .src( 'app.*' )
@@ -86,8 +82,7 @@ And since 2.1.1 it is also possible to add your own globals. Since a "global" is
             globals: [ [ 'ignore', /^custom-/ ] ]
         }));
 
-Or you define a module that exports this array and require it:
-
+Or you can define a module that exports this array and require it:
 
     // custom-global.js
     module.exports = [ 'ignore', /^custom-/ ];
@@ -101,7 +96,7 @@ Or you define a module that exports this array and require it:
 
 This way you could also automatically create your custom global.
 
-### Globals that work out of the box
+### Globals that Work out of the Box
 
 * Bootstrap 3.2.0 (``bootstrap@3.2.0``)
 
@@ -113,7 +108,7 @@ This way you could also automatically create your custom global.
     # hack hack hack
     npm test
 
-### Add a global to the project's source
+### Add a Global to the Project's Source
 
 0. Fork the project
 1. Acquire CSS file
@@ -137,3 +132,21 @@ This way you could also automatically create your custom global.
 * ``0.0.5``: Fix bug where media queries in the CSS broke everything
 * ``0.0.4``: Fix bug where those options could not be used together
 * ``0.0.3``: Introduce ``ignoreClassNames``, ``ignoreClassPatterns``
+
+##Contributions/TODO List
+This project was recently revived and is actively and enthusiastically seeking contributors. Here's the plan for its necst development phase:
+- Improve code documentation
+- Update dependencies and gulp tasks
+- Add support for LESS/Sass
+- Add code coverage
+
+To get involved, just file a PR or ask for more information via Issues.
+
+##License
+Copyright 2014 Zalando SE
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
