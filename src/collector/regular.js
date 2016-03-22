@@ -1,4 +1,9 @@
+/**
+ * @description - Collects all of the css classes defined using the class attribute
+ * @return - 
+ */
 function regularCollector() {
+    'use strict';
     this.collect = function collect( attributes, angularSupport ) {
         var hasClass = attributes[ 'class' ];
         
@@ -10,7 +15,7 @@ function regularCollector() {
                     })
 
                 : [];
-    }
+    };
 }
 
 module.exports = regularCollector;

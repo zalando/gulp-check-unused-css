@@ -1,3 +1,5 @@
+/*jslint node: true */
+
 var checkCSS =  require( '../src/check-css' ),
     gutil =     require( 'gulp-util' ),
     assert =    require( 'assert' ),
@@ -6,6 +8,7 @@ var checkCSS =  require( '../src/check-css' ),
     sinon =     require( 'sinon' );
 
 function createFile( file ) {
+    'use strict';
     return  new gutil.File({
                 base: path.join( __dirname, path.dirname( file ) ),
                 contents: new Buffer( fs.readFileSync( file ) ),
@@ -16,7 +19,7 @@ function createFile( file ) {
 }
 
 describe( 'the bad CSS case', function() {
-
+    'use strict';
     it( 'should throw an error by default', function( done ) {
         var dataSpy = sinon.spy(),
             css = createFile( 'test/bad-css/bad.css' ),
@@ -40,7 +43,7 @@ describe( 'the bad CSS case', function() {
 
 
 describe( 'the empty case', function() {
-
+    'use strict';
     it( 'should not emit an error', function( done ) {
         var errorSpy = sinon.spy(),
             emptyCSS = createFile( 'test/empty/empty.css' ),
@@ -60,7 +63,7 @@ describe( 'the empty case', function() {
 });
 
 describe( 'the happy case', function() {
-
+    'use strict';
     it( 'should emit all files', function( done ) {
         var errorSpy = sinon.spy(),
             css = createFile( 'test/happy/happy.css' ),
@@ -155,6 +158,7 @@ describe( 'the happy case', function() {
 });
 
 describe( 'no error should be thrown', function() {
+    /* jshint ignore:start */
     it( 'without config', function( done ) {
         try {
             stream = checkCSS();
@@ -182,10 +186,11 @@ describe( 'no error should be thrown', function() {
         stream.write( invalidCSS );
         stream.end();
     });
+    /* jshint ignore:end */
 });
 
 describe( 'the NULL case', function() {
-
+    'use strict';
     it( 'should let files through', function( done ) {
         var errorSpy = sinon.spy(),
             stream = checkCSS();
@@ -206,7 +211,7 @@ describe( 'the NULL case', function() {
 });
 
 describe( 'the angular syntax', function() {
-
+    'use strict';
     it( 'should be off by default', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
@@ -251,7 +256,7 @@ describe( 'the angular syntax', function() {
 });
 
 describe( 'predefined ignore rules', function() {
-
+    'use strict';
     it( 'should be addable', function( done ) {
 
         var errorSpy = sinon.spy(),
@@ -296,7 +301,7 @@ describe( 'predefined ignore rules', function() {
 });
 
 describe( 'the bad HTML case', function() {
-
+    'use strict';
     it( 'should throw an error', function( done ) {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),

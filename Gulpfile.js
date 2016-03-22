@@ -23,7 +23,7 @@ gulp.task( 'watch', function() {
 });
 
 gulp.task( 'jshint', function() {
-    return gulp.src( './src/check-css.js' )
+    return gulp.src( ['./test/**/*.js', './src/**/*.js', '!./src/**/bootstrap*'] )
             .pipe( jshint() )
             .pipe( jshint.reporter( 'jshint-stylish' ) );
 });

@@ -29,7 +29,11 @@ var definedClasses = [],
     usedClasses = [],
     CLASS_REGEX = /\.[a-zA-Z](?:[0-9A-Za-z_-])*/g;  // leading dot & a letter & digits, letters, _ or -
 
-// checks whether a class should be ignored
+/**
+* @description - Checks whether a class should be ignored
+* @param {string} clazz - The class to be checked against ignore strings and regexs
+* @return {boolean} - returns true or false if clazz should be ignored
+*/
 function shouldIgnore( clazz ) {
     'use strict';
 
@@ -46,6 +50,12 @@ function shouldIgnore( clazz ) {
     };
 }
 
+
+/**
+* @description - Checks whether to ignore a collection of classes
+* @param {boolean} ignore - whether classes should be filtered out
+* @return {boolean} - return whether it is to be ignored or not
+*/
 function filterIgnored( ignore ) {
     'use strict';
 
@@ -61,8 +71,10 @@ function filterIgnored( ignore ) {
     };
 }
 
-// checks if the selectors of a CSS rule are a class
-// an adds them to the defined classes
+/**
+* @description - Checks if the selectors of a CSS rule are a class and adds them to the list of defined classes
+* @param {Array} collection - The existing list of classes
+*/
 function getDefinedClasses( collection ) {
     'use strict';
 
@@ -90,7 +102,10 @@ function getDefinedClasses( collection ) {
     };
 }
 
-// actual function that gets exported
+/**
+ * @description - Function that gets exported for css checking
+ * @param {Object} opts - The options such as ignore, globals and angular
+ */
 function checkCSS( opts ) {
     'use strict';
 
