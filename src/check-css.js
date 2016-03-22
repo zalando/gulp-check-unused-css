@@ -31,7 +31,7 @@ var definedClasses = [],
 
 /**
 * @description - Checks whether a class should be ignored
-* @param {string} clazz - The classed to be checked against ignore strings and regexs
+* @param {string} clazz - The class to be checked against ignore strings and regexs
 * @return {boolean} - returns true or false if clazz should be ignored
 */
 function shouldIgnore( clazz ) {
