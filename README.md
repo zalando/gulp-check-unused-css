@@ -139,6 +139,7 @@ This project was recently revived and is actively and enthusiastically seeking c
 - Update dependencies and gulp tasks
 - Add support for LESS/Sass
 - Add code coverage
+- Add project wiki
 
 To get involved, just file a PR or ask for more information via Issues.
 
