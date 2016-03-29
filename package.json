@@ -5,7 +5,7 @@
   "homepage": "https://github.com/zalando/gulp-check-unused-css",
   "main": "src/check-css.js",
   "scripts": {
-    "test": "mocha"
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
@@ -39,11 +39,13 @@
   },
   "devDependencies": {
     "assert": "1.1.1",
+    "coveralls":"2.11.9",
     "gulp": "3.9.1",
     "gulp-cssmin": "0.1.7",
     "gulp-watch": "4.3.5",
     "gulp-jshint": "1.8.5",
     "gulp-plumber": "0.6.6",
+    "istanbul": "0.4.2",
     "jshint-stylish": "1.0.0",
     "minimist": "1.1.0",
     "mocha": "1.21.4",
