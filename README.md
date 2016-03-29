@@ -1,6 +1,7 @@
 # gulp-check-unused-css
 
 [![Build Status](http://img.shields.io/travis/zalando/gulp-check-unused-css.svg)](https://travis-ci.org/zalando/gulp-check-unused-css)
+[![Coverage Status](https://coveralls.io/repos/github/zalando/gulp-check-unused-css/badge.svg?branch=master)](https://coveralls.io/github/zalando/gulp-check-unused-css?branch=master)
 
 gulp-check-unused-css checks to ensure that all of your defined CSS classes are used in your HTML files, and vice versa.
 
