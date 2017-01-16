@@ -1,11 +1,13 @@
 [![Build Status](http://img.shields.io/travis/zalando/gulp-check-unused-css.svg)](https://travis-ci.org/zalando/gulp-check-unused-css)
 [![Coverage Status](https://coveralls.io/repos/github/zalando/gulp-check-unused-css/badge.svg?branch=master)](https://coveralls.io/github/zalando/gulp-check-unused-css?branch=master)
 
-<p align="center"><img height="360" alt="Skipper" src="https://github.com/zalando/gulp-check-unused-css/blob/master/gulp_check_unused_css_logo.jpg"></p>
+<p align="center"><img height="360" alt="gulp-check-unused-css" src="https://github.com/zalando/gulp-check-unused-css/blob/master/gulp_check_unused_css_logo.jpg"></p>
 
 # gulp-check-unused-css
 
-gulp-check-unused-css checks to ensure that all of your defined CSS classes are used in your HTML files, and vice versa.
+gulp-check-unused-css checks to ensure that all of your defined CSS classes are used in your HTML files, and vice versa. If your html uses any classes that you have not defined in your CSS files, or if there are css definitions that aren't being used, they will be reported.
+
+This allows for removal of unused and redundant code which will both improve the readability of your project while also slightly reducing file size (and therefore the amount of data being transferred on load).
 
 ## Why gulp-check-unused-css
 
@@ -45,6 +47,13 @@ Simple use:
         .pipe( checkCSS() );
 
 For advanced use with ``gulp-watch`` check out the [Gulpfile](Gulpfile.js).
+
+Depending on the gulp version, you may have to return the gulp command like below:
+
+    var checkCSS = require( 'gulp-check-unused-css' );
+    return gulp
+        .src([ 'styles/*.css', 'templates/*.html' ])
+        .pipe( checkCSS() );
 
 ![Screenshot](screenshot.png)
 
