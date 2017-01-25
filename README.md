@@ -5,9 +5,11 @@
 
 # gulp-check-unused-css
 
-gulp-check-unused-css checks to ensure that all of your defined CSS classes are used in your HTML files, and vice versa. If your html uses any classes that you have not defined in your CSS files, or if there are css definitions that aren't being used, they will be reported.
+This tool ensures that all of your defined CSS classes are used in your HTML files, and vice versa. If your HTML uses any classes that you have not defined in your CSS files, or if there are css definitions that aren't being used, they will be reported.
 
 This allows for removal of unused and redundant code which will both improve the readability of your project while also slightly reducing file size (and therefore the amount of data being transferred on load).
+
+Going forward I would like to collaborate openly with any open source developers interested in improving this tool, and discuss features that they think are missing for their own particular use case. Please create issues to get the conversation started! :)
 
 ## Why gulp-check-unused-css
 
