@@ -1,6 +1,6 @@
 {
   "name": "gulp-check-unused-css",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Checks your CSS for unused classes in HTML templates",
   "homepage": "https://github.com/zalando/gulp-check-unused-css",
   "main": "src/check-css.js",
@@ -22,10 +22,10 @@
     "email": "nikolaus.piccolotto@zalando.de"
   },
   "contributors": [
-      {
-          "name": "David Jones",
-          "email": "david.martin.jones@zalando.de"
-      }
+    {
+      "name": "David Jones",
+      "email": "david.martin.jones@zalando.de"
+    }
   ],
   "license": "Apache2",
   "dependencies": {
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "assert": "1.1.1",
-    "coveralls":"2.11.9",
+    "coveralls": "2.11.9",
     "gulp": "3.9.1",
     "gulp-cssmin": "0.1.7",
     "gulp-watch": "4.3.5",
