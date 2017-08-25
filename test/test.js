@@ -142,6 +142,7 @@ describe( 'the happy case', function() {
         var errorSpy = sinon.spy(),
             dataSpy = sinon.spy(),
             css = createFile( 'test/mediaquery/mediaquery.css' ),
+            html= createFile( 'test/mediaquery/mediaquery.html' ),
             stream = checkCSS();
 
         stream.on( 'error', errorSpy );
@@ -152,6 +153,7 @@ describe( 'the happy case', function() {
             done();
         });
 
+        stream.write( html );
         stream.write( css );
         stream.end();
     });

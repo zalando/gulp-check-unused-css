@@ -78,7 +78,11 @@ function filterIgnored( ignore ) {
 function getDefinedClasses( collection ) {
     'use strict';
 
-    return function( rule ) {
+    return function handleRule( rule ) {
+        if ( Array.isArray( rule.rules ) ) {
+            return rule.rules.forEach( handleRule );
+        }
+
         if ( rule.type !== 'rule' ) {
             return;
         }
