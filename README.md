@@ -147,7 +147,7 @@ This way you could also automatically create your custom global.
 * ``0.0.4``: Fix bug where those options could not be used together
 * ``0.0.3``: Introduce ``ignoreClassNames``, ``ignoreClassPatterns``
 
-##Contributions/TODO List
+## Contributions/TODO List
 This project was recently revived and is actively and enthusiastically seeking contributors. Here's the plan for its next development phase:
 - Improve code documentation
 - Update dependencies and gulp tasks
@@ -157,7 +157,7 @@ This project was recently revived and is actively and enthusiastically seeking c
 
 To get involved, just file a PR or ask for more information via Issues.
 
-##License
+## License
 Copyright 2014 Zalando SE
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
