@@ -24,28 +24,36 @@ try {
     console.error( cssError.message );
 }
 
-ast.stylesheet.rules.forEach(function( rule ) {
-    if ( !rule.type === 'rule ' ) {
-        return;
-    }
+var parseRules = function( rules ) {
+    rules.forEach(function( rule ) {
+        if ( rule.type === 'rule' ) {
 
-    if ( !rule.selectors ) {
-        return;
-    }
-
-    rule.selectors.forEach( function( selector ) {
-        var matches = selector.match( CLASS_REGEX );
-        if ( !matches ) {
-            return;
-        }
-
-        matches.forEach( function( match ) {
-            if ( definedClasses.indexOf( match ) === -1 ) {
-                definedClasses.push( match );
+            if ( !rule.selectors ) {
+                return;
             }
-        });
+
+            rule.selectors.forEach( function( selector ) {
+                var matches = selector.match( CLASS_REGEX );
+
+                if ( !matches ) {
+                    return;
+                }
+
+                matches.forEach( function( match ) {
+                    if ( definedClasses.indexOf( match ) === -1 ) {
+                        definedClasses.push( match );
+                    }
+                });
+            });
+
+        }
+        else if ( rule.type === 'media' ) {
+            parseRules( rule.rules );
+        }
     });
-});
+}
+
+parseRules( ast.stylesheet.rules );
 
 definedClasses = definedClasses.map( function( c ) { return c.substring( 1 ); });
 
