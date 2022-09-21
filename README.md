@@ -1,3 +1,5 @@
+## This library is no longer being maintained and as a result has been archived, it is recommended to use [gulp-purgecss](https://www.npmjs.com/package/gulp-purgecss) as an alternative
+
 [![Build Status](http://img.shields.io/travis/zalando/gulp-check-unused-css.svg)](https://travis-ci.org/zalando/gulp-check-unused-css)
 [![Coverage Status](https://coveralls.io/repos/github/zalando/gulp-check-unused-css/badge.svg?branch=master)](https://coveralls.io/github/zalando/gulp-check-unused-css?branch=master)
 
